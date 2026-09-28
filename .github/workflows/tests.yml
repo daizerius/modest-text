@@ -1,0 +1,57 @@
+# The full suite with Playwright's own Chromium and Firefox (file:// and http), on Windows: the platform
+# a Mac cannot test. Local runs cover macOS and add WebKit, which CI does not install.
+#
+# macOS is on request: Actions -> tests -> Run workflow -> tick "Also run on macOS". Its runner is
+# Apple Silicon; worth a run before a release, or to chase a failure only it shows.
+name: tests
+on:
+  push:
+    branches: [master]
+    paths-ignore: ['**.md'] # a documentation commit does not change what the tests test
+  pull_request:
+    branches: [master]
+    paths-ignore: ['**.md']
+  workflow_dispatch:
+    inputs:
+      macos:
+        description: 'Also run on macOS'
+        type: boolean
+        default: false
+
+# A second push supersedes the first: cancel the run in flight.
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJSON((github.event_name == 'workflow_dispatch' && inputs.macos) && '["windows-latest","macos-latest"]' || '["windows-latest"]') }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24 # 20.20 decodes windows-1252 as Latin-1 (unit.spec.js); the app, in a browser, never did
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium firefox
+      # unzip is used to check the ZIP files independently of the app (preinstalled on macOS).
+      - if: runner.os == 'Windows'
+        run: choco install unzip --no-progress -y
+      - run: node build.mjs
+      - run: npx playwright test --reporter=list
+        env:
+          MT_WORKERS: 2
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.os }}
+          path: test-results
+          retention-days: 7

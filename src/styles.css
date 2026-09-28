@@ -1,0 +1,499 @@
+/* Modest Text — Nord (dark) / Arctic (light) */
+:root {
+  --bg-editor: #ECEFF4;
+  --bg-bar: #E5E9F0;
+  --bg-tabs: #D8DEE9;
+  --bg-hover: #D8DEE9;
+  --bg-input: #ECEFF4;
+  --highlight-bg: #EBCB8B;
+  --border: #B6BECB;
+  --text: #2E3440;
+  --text-strong: #2E3440;
+  --text-muted: #434C5E;
+  --accent: #5E81AC;
+  --accent-soft: #88C0D0;
+  --on-accent-soft: #2E3440;
+  --focus: #5E81AC;
+  --focus-bg: #C9D6E6;
+  --strike-text: #626B7C;
+  --find-bg: rgba(136, 192, 208, 0.45);
+  --find-current-bg: rgba(235, 203, 139, 0.9);
+  --code-bg: #D8DEE9;
+  --sel: #C9D6E6;
+  --link: #2E3440;
+  --banner-full-bg: #EBD3D6;
+  --banner-ro-bg: #D8DEE9;
+  --red: #BF616A;
+  --green: #A3BE8C;
+  --yellow: #EBCB8B;
+  --dot-red: #D62F3A;
+  --dot-green: #1E8A3C;
+  --backdrop: rgba(46, 52, 64, 0.45);
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  --bg-editor: #2E3440;
+  --bg-bar: #3B4252;
+  --bg-tabs: #3B4252;
+  --bg-hover: #434C5E;
+  --bg-input: #2E3440;
+  --border: #4C566A;
+  --text: #E5E9F0;
+  --text-strong: #ECEFF4;
+  --text-muted: #D8DEE9;
+  --accent: #88C0D0;
+  --accent-soft: #88C0D0;
+  --on-accent-soft: #2E3440;
+  --focus: #88C0D0;
+  --focus-bg: #4C566A;
+  --strike-text: #969EAC;
+  --find-bg: rgba(136, 192, 208, 0.3);
+  --find-current-bg: rgba(235, 203, 139, 0.45);
+  --code-bg: #434C5E;
+  --sel: #4C566A;
+  --link: #88C0D0;
+  --banner-full-bg: #5A3D46;
+  --banner-ro-bg: #434C5E;
+  --dot-red: #FF5A64;
+  --dot-green: #43C463;
+  --backdrop: rgba(0, 0, 0, 0.5);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-editor);
+  color: var(--text);
+  font: 13px/1.3 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  overflow: hidden;
+  min-width: 0;
+}
+[hidden] { display: none !important; }
+button, select, input { font: inherit; color: inherit; }
+/* Keyboard focus: a 2px ring set 2px off the control, and a tinted face on buttons. */
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+button:focus-visible, select:focus-visible, [role="tab"]:focus-visible { background-color: var(--focus-bg); }
+/* Inside the tab strip (it scrolls, so it clips) the ring is drawn inside the control. */
+.tab:focus-visible, .tab-close:focus-visible, .new-tab:focus-visible, .tab-tool:focus-visible { outline-offset: -4px; }
+
+/* ---------- top bar */
+#topbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 4px 8px;
+  padding: 4px 6px;
+  background: var(--bg-bar);
+  border-bottom: 1px solid var(--border);
+  flex: none;
+}
+/* Spacing system for both bars: 4px between controls of a group; a 1px hairline with 4px on each side between groups. */
+.bar-group { display: flex; align-items: center; gap: 4px; min-width: 0; }
+.bar-sep { flex: none; width: 1px; height: 18px; margin: 0 4px; background: var(--border); }
+.bar-settings, .bar-right { flex: none; }
+.bar-right { margin-left: auto; }
+/* Narrow window: the workspace buttons stay beside the title; font, size, wrap and reading width move, together, to a row below. */
+#topbar.stacked { flex-wrap: wrap; }
+#topbar.stacked .bar-settings { order: 2; flex: 1 1 100%; flex-wrap: wrap; row-gap: 4px; }
+.app-title {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 2px 4px;
+  color: var(--text-strong);
+  white-space: nowrap;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.btn {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 2px 6px;
+  height: 26px;
+  cursor: pointer;
+  white-space: nowrap;
+  color: var(--text);
+}
+.btn:hover:not(:disabled) { background: var(--bg-hover); }
+.btn:disabled { opacity: 0.45; cursor: default; }
+.btn.icon { width: 28px; padding: 0; font-size: 15px; }
+/* The size menu draws its own caret: WebKit ignores the author border-radius on a select left at
+   appearance "auto" (even !important), giving it 5px rounded corners the flat design does not want. */
+.size-picker { position: relative; display: inline-flex; align-items: center; }
+.size-picker .caret { position: absolute; right: 6px; pointer-events: none; }
+/* 17px on the right, not 16: it puts the gap between the longest label and the caret at 5px, the gap
+   the font button's flex row gives its own caret. */
+.select { appearance: none; -webkit-appearance: none; padding: 2px 17px 2px 4px; }
+.select-btn { display: inline-flex; align-items: center; gap: 5px; max-width: 130px; }
+.font-label { overflow: hidden; text-overflow: ellipsis; }
+/* translateY, not a top offset: it lifts the font button's caret (laid out in the flex row) and the
+   size menu's (absolutely placed) by the same 1px. */
+.caret { font-size: 16px; transform: translateY(-1px); }
+/* Icon buttons (undo, save, export all, import, plain / Markdown, theme, help): hand-drawn line icons in the
+   text colour, so they follow the theme; the icon itself is the button (no border or background). */
+.icon-btn, .icon-pair { border: 0; padding: 0; margin: 0; background: none; color: var(--text); cursor: pointer; border-radius: 4px; }
+.icon-btn { width: 28px; height: 26px; display: inline-flex; align-items: center; justify-content: center; }
+.icon-btn:hover:not(:disabled), .icon-pair:hover:not(:disabled) { color: var(--accent); }
+.icon-btn:disabled, .icon-pair:disabled { opacity: 0.45; cursor: default; }
+/* On / off icon buttons of the top bar (Wrap, Reading width): pressed = on, as on the formatting buttons. */
+.toggle-btn[aria-pressed="true"] { background: var(--bg-hover); box-shadow: inset 0 -3px 0 var(--accent); }
+svg.icon { width: 20px; height: 20px; display: block; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+svg.icon[data-icon="dark"], svg.icon[data-icon="light"] { fill: currentColor; } /* solid moon and sun (the sun's rays are strokes) */
+/* The theme button shows the icon of the mode it switches to: the bulb in dark mode, the moon in light mode. */
+:root[data-theme="dark"] #btn-theme .icon[data-icon="dark"], :root:not([data-theme="dark"]) #btn-theme .icon[data-icon="light"] { display: none; }
+/* Plain / Markdown: the current mode has a short accent bar under its icon. */
+.icon-pair { display: inline-flex; height: 26px; }
+.icon-pair .pair-half { position: relative; width: 26px; display: flex; justify-content: center; align-items: flex-start; padding-top: 1px; }
+.icon-pair .pair-half.active::after { content: ""; position: absolute; left: 5px; right: 5px; bottom: 0; height: 3px; border-radius: 2px; background: var(--accent); }
+/* Two-state toggles (FR|EN, plain|Markdown): one button; the half for the current state is highlighted. */
+.pair-sep { width: 1px; margin: 6px 0 9px; background: var(--border); } /* faint hairline between FR and EN */
+/* FR|EN: styled like the plain / Markdown toggle — letters in the text colour, accent bar under the current one. */
+.lang-pair .pair-half { align-items: center; padding: 0 0 3px; font-size: 13px; font-weight: 600; }
+/* Reopen closed tab: in the tab strip, right after +, the same size as +. */
+.tab-tool { width: 32px; height: 31px; flex: none; border-radius: 0; }
+.tab-tool:hover:not(:disabled) { background: var(--bg-hover); }
+
+/* font picker */
+.font-picker { position: relative; }
+.font-list {
+  position: absolute;
+  top: calc(100% + 3px);
+  left: 0;
+  z-index: 30;
+  min-width: 200px;
+  background: var(--bg-bar);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 4px 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+.font-group { font-size: 11px; color: var(--text-muted); padding: 6px 12px 2px; font-family: system-ui, sans-serif; }
+.font-opt { padding: 4px 12px 4px 20px; font-size: 15px; cursor: pointer; position: relative; color: var(--text); }
+.font-opt:hover, .font-opt.kb { background: var(--bg-hover); }
+.font-opt[aria-checked="true"]::before { content: "✓"; position: absolute; left: 6px; font-family: system-ui, sans-serif; }
+.font-opt[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; text-decoration: line-through; }
+.font-opt[aria-disabled="true"]:hover { background: none; }
+
+/* ---------- formatting bar */
+/* The bar under the tabs acts on the current tab: plain / Markdown, undo / redo (both modes), then Markdown formatting. */
+.formatbar { flex: none; padding: 4px 6px; background: var(--bg-bar); border-bottom: 1px solid var(--border); overflow: hidden; }
+/* Groups never break; the second half (headings, lists, blocks) moves to the next row as a whole. Each group
+   draws its hairline 8px before it; the rows start 17px to the left, so a group that begins a row has its
+   hairline outside the bar (clipped) and no stray line. */
+.fmt-rows { display: flex; flex-wrap: wrap; align-items: center; row-gap: 4px; margin-left: -17px; }
+.fmt-part { display: flex; flex-wrap: wrap; align-items: center; row-gap: 4px; min-width: 0; }
+.fmt-group { position: relative; display: flex; align-items: center; gap: 4px; margin-left: 17px; flex: none; }
+.fmt-group::before { content: ""; position: absolute; left: -9px; top: calc(50% - 9px); width: 1px; height: 18px; background: var(--border); }
+.fmt-btn, .hist-btn { min-width: 28px; height: 26px; padding: 0 5px; border: 1px solid transparent; border-radius: 3px; background: none; color: var(--text); cursor: pointer; font-size: 13px; line-height: 1; }
+.fmt-btn:hover:not(:disabled), .hist-btn:hover:not(:disabled) { background: var(--bg-hover); border-color: var(--border); }
+/* A format under the cursor: pressed, with an accent bar under it (like the current mode). */
+.fmt-btn[aria-pressed="true"] { background: var(--bg-hover); box-shadow: inset 0 -3px 0 var(--accent); }
+.fmt-btn:disabled, .hist-btn:disabled { opacity: 0.4; cursor: default; }
+/* Strikethrough: the line runs a little past the letter. Horizontal rule: a line twice the length of `―`. */
+.fmt-strike { position: relative; display: inline-block; }
+.fmt-strike::after { content: ""; position: absolute; left: -3px; right: -3px; top: 52%; height: 1.5px; background: currentColor; }
+.fmt-rule { display: block; width: 24px; height: 2px; border-radius: 1px; background: currentColor; }
+.fmt-btn svg.icon, .hist-btn svg.icon { width: 16px; height: 16px; margin: auto; }
+.fmt-hl { background: var(--highlight-bg); color: #2E3440; border-radius: 2px; padding: 0 2px; }
+.fmt-mono { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; }
+.fmt-btn[data-fmt="ul"] { font-size: 20px; }
+.fmt-btn[data-fmt="bold"], .fmt-btn[data-fmt="italic"], .fmt-btn[data-fmt="strike"] { font-family: Georgia, "Times New Roman", serif; font-size: 16px; }
+
+/* ---------- theme change: a quick cross-fade */
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: 180ms; animation-timing-function: ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+}
+
+/* ---------- tabs */
+#tabbar { flex: none; background: var(--bg-tabs); border-bottom: 1px solid var(--border); display: flex; align-items: stretch; position: relative; }
+.tabstrip { display: flex; align-items: stretch; overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; flex: 1 1 auto; min-width: 0; }
+/* All tabs in one menu, for when there are more of them than the strip can show. It hangs off the tab bar
+   rather than the strip, which scrolls and would clip it. */
+.tab-list {
+  position: absolute; top: 100%; right: 0; z-index: 30;
+  min-width: 220px; max-width: min(360px, 90vw); max-height: 60vh; overflow-y: auto;
+  background: var(--bg-bar); border: 1px solid var(--border); border-radius: 4px; padding: 4px 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+.tab-opt {
+  display: flex; align-items: center; gap: 7px; padding: 4px 12px 4px 20px; position: relative;
+  font-size: 14px; color: var(--text); cursor: pointer;
+}
+.tab-opt:hover, .tab-opt.kb { background: var(--bg-hover); }
+.tab-opt[aria-checked="true"] { font-weight: 600; color: var(--text-strong); }
+.tab-opt[aria-checked="true"]::before { content: "✓"; position: absolute; left: 6px; font-family: system-ui, sans-serif; font-weight: 400; }
+.tab-opt .tab-opt-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tab-opt .tab-opt-dot { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--red); }
+.tab-opt .tab-opt-md { flex: none; font-size: 10px; color: var(--text-muted); font-family: system-ui, sans-serif; }
+#tabs { display: flex; align-items: stretch; flex: none; }
+.tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 31px;
+  min-width: 70px;
+  max-width: 220px;
+  padding: 0 4px 0 12px;
+  border-right: 1px solid var(--border);
+  background: var(--bg-tabs);
+  color: var(--text);
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  flex: none;
+}
+.tab:hover:not(.active) { background: var(--bg-hover); }
+.tab.active {
+  background: var(--bg-editor);
+  color: var(--text-strong);
+  font-weight: 700;
+  box-shadow: inset 0 3px 0 var(--accent);
+}
+.tab:focus-visible, .tab.active:focus-visible { background: var(--focus-bg); }
+.tab.active::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: var(--bg-editor); }
+.tab.help .tab-name { font-style: italic; }
+.tab.unsaved .tab-name::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 6px; border-radius: 50%; background: var(--dot-red); vertical-align: 1px; }
+.tab.floating { outline: 2px dashed var(--accent); outline-offset: -4px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25); z-index: 1; }
+.tab.dragging { opacity: 0.7; outline: 1px dashed var(--accent); outline-offset: -2px; }
+.tab-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0; }
+.tab-close {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: none;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  color: var(--text);
+  font-weight: 400;
+}
+.tab-close:hover:not(:disabled) { background: var(--bg-hover); border-color: var(--border); }
+.tab.active .tab-close:hover:not(:disabled) { background: var(--bg-tabs); }
+.tab-close:disabled { opacity: 0.35; cursor: default; }
+.new-tab { flex: none; width: 32px; border: 0; background: none; font-size: 18px; cursor: pointer; color: var(--text); }
+.new-tab:hover:not(:disabled) { background: var(--bg-hover); }
+.new-tab:disabled { opacity: 0.4; cursor: default; }
+html.tab-dragging, html.tab-dragging * { cursor: grabbing !important; }
+
+/* ---------- banners */
+.banner { flex: none; display: flex; align-items: center; gap: 10px; padding: 5px 12px; border-bottom: 1px solid var(--border); }
+.banner-full { background: var(--banner-full-bg); color: var(--text-strong); border-left: 4px solid var(--red); font-weight: 600; }
+.banner-full .banner-icon { color: var(--red); }
+.banner-ro { background: var(--banner-ro-bg); color: var(--text-strong); border-left: 4px solid var(--accent); }
+.banner-btn { height: 24px; }
+
+/* ---------- editor */
+#editor {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  --md-font: Georgia, "Times New Roman", serif;
+  --mono-font: monospace;
+  --ed-size: 16px;
+}
+#editor .cm-editor { height: 100%; background: var(--bg-editor); color: var(--text); font-size: var(--ed-size); }
+#editor .cm-editor.cm-focused { outline: none; }
+#editor .cm-scroller { font-family: var(--mono-font); line-height: 1.5; }
+#editor .cm-content { caret-color: var(--text-strong); padding: 10px 0 40vh; }
+/* Left padding = the base (more on quote lines) + an extra indent per nested list level (Markdown tabs). */
+#editor .cm-line { padding: 0 18px; padding-left: calc(var(--line-pad, 18px) + var(--list-pad, 0px)); }
+#editor .cm-content ::selection, #editor .cm-content::selection { background: var(--sel); color: inherit; }
+/* Reading width: a centred column of comfortable measure. Only ever on where the text wraps, so a long
+   line is never cut off (see updateToolbar: the button is disabled in a plain tab whose wrap is off). */
+#editor[data-read="1"] .cm-content { max-width: 80ch; margin-inline: auto; }
+#editor[data-read="1"] .cm-editor.mt-md .cm-content { max-width: 46em; } /* as the Help page */
+#editor .cm-editor.mt-md .cm-scroller { font-family: var(--md-font); line-height: 1.6; }
+/* ---------- the Help page (Help tab): read-only, rendered in place of the editor */
+.help-view { flex: 1; min-height: 0; overflow: auto; background: var(--bg-editor); color: var(--text); outline: none;
+  font-family: var(--md-font, Georgia, serif); font-size: var(--ed-size, 16px); line-height: 1.6; padding-block: 10px 30vh; padding-inline: 18px;
+  --md-font: Georgia, "Times New Roman", serif; --mono-font: monospace; --ed-size: 16px; }
+.help-view:focus-visible { box-shadow: inset 0 0 0 2px var(--focus); }
+.help-page { max-width: 46em; }
+.help-page h1, .help-page h2, .help-page h3 { color: var(--text-strong); line-height: 1.3; margin: 1.1em 0 0.4em; }
+.help-page h1 { font-size: 2em; margin-top: 0.3em; }
+.help-page h2 { font-size: 1.5em; }
+.help-page p, .help-page ul, .help-page ol, .help-page table { margin: 0 0 0.8em; }
+.help-page ul, .help-page ol { padding-left: 1.3em; }
+.help-page li > p { margin: 0; }
+.help-page li > ul { margin: 0; }
+.help-page a { color: var(--link); text-decoration: underline; text-underline-offset: 0.15em; }
+.help-page code { font-family: var(--mono-font); font-size: 0.85em; background: var(--code-bg); border-radius: 3px; padding: 0.05em 0.3em; white-space: nowrap; }
+.help-page mark { background: var(--hl-bg, #EBCB8B); color: inherit; }
+.help-page table { border-collapse: collapse; }
+.help-page th { text-align: left; font-weight: 700; color: var(--text-strong); border-bottom: 2px solid var(--border); }
+.help-page th, .help-page td { padding: 0.15em 1em 0.15em 0; vertical-align: middle; border-bottom: 1px solid var(--border); }
+.help-page td:first-child { white-space: nowrap; }
+/* Copies of the interface's icons and button faces, in the running text. */
+.help-ui { display: inline-flex; align-items: center; justify-content: center; vertical-align: middle; position: relative; top: -0.125em; /* centred on the text, faces with text and icons alone alike */ min-width: 1.75em; height: 1.55em;
+  padding: 0 0.3em; border: 1px solid var(--border); border-radius: 3px; background: var(--bg-hover); color: var(--text);
+  font: 0.8em/1 system-ui, -apple-system, "Segoe UI", sans-serif; }
+.help-ui svg.icon { width: 1.25em; height: 1.25em; }
+.help-ui[data-fmt="bold"], .help-ui[data-fmt="italic"], .help-ui[data-fmt="strike"] { font-family: Georgia, "Times New Roman", serif; font-size: 0.95em; }
+.help-ui[data-fmt="ul"] { font-size: 1.1em; }
+.help-ui.fmt-mono { font-family: ui-monospace, Menlo, Consolas, monospace; }
+.help-ui .fmt-rule { width: 1.5em; }
+.help-ui .pair-sep { display: inline-block; width: 1px; height: 1em; margin: 0 0.3em; background: var(--border); }
+.mt-md .mt-h { font-weight: 700; line-height: 1.3; color: var(--text-strong); }
+.mt-md .mt-h1 { font-size: 2em; padding-top: 0.3em; }
+.mt-md .mt-h2 { font-size: 1.6em; padding-top: 0.25em; }
+.mt-md .mt-h3 { font-size: 1.35em; padding-top: 0.2em; }
+.mt-md .mt-h4 { font-size: 1.15em; }
+.mt-md .mt-h5 { font-size: 1em; }
+.mt-md .mt-h6 { font-size: 0.9em; }
+.mt-md .mt-setext-mark { font-size: 0.8em; }
+.mt-md .mt-em { font-style: italic; }
+.mt-md .mt-strong { font-weight: 700; }
+.mt-md .mt-strike { text-decoration: line-through; text-decoration-color: var(--text); color: var(--strike-text); } /* fainter text, same line */
+.mt-md .mt-highlight { background: var(--highlight-bg); color: #2E3440; border-radius: 2px; }
+.mt-md .mt-code { font-family: var(--mono-font); font-size: 0.88em; background: var(--code-bg); border-radius: 3px; padding: 0.1em 0.25em; }
+.mt-md .mt-codeblock { font-family: var(--mono-font); font-size: 0.88em; background: var(--code-bg); line-height: 1.45; }
+.mt-md .mt-codeblock-first { border-top-left-radius: 3px; border-top-right-radius: 3px; }
+.mt-md .mt-codeblock-last { border-bottom-left-radius: 3px; border-bottom-right-radius: 3px; }
+.mt-md .mt-fence-hidden { font-size: 0.5em; line-height: 1; }
+/* Quote bars: 4px each, drawn with inset shadows; the text starts clearly to the right of the last bar.
+   #editor raises specificity above the general `#editor .cm-line` padding. */
+#editor .mt-md .cm-line.mt-quote { box-shadow: inset 18px 0 var(--bg-editor), inset 22px 0 var(--accent); --line-pad: 36px; }
+#editor .mt-md .cm-line.mt-quote-2 { box-shadow: inset 18px 0 var(--bg-editor), inset 22px 0 var(--accent), inset 30px 0 var(--bg-editor), inset 34px 0 var(--accent); --line-pad: 48px; }
+#editor .mt-md .cm-line.mt-quote-3 { box-shadow: inset 18px 0 var(--bg-editor), inset 22px 0 var(--accent), inset 30px 0 var(--bg-editor), inset 34px 0 var(--accent), inset 42px 0 var(--bg-editor), inset 46px 0 var(--accent); --line-pad: 60px; }
+.mt-md .mt-link { color: var(--link); text-decoration: underline; text-decoration-color: var(--accent); text-decoration-thickness: 2px; text-underline-offset: 2px; }
+.mt-md .mt-bullet { color: var(--accent); font-weight: 700; }
+.mt-md .mt-listmark { color: var(--text-muted); }
+/* List markers in a box of the list's marker width (--mk, set on the line with its hanging indent). */
+.mt-md .mt-listbox { display: inline-block; min-width: var(--mk, 1.3em); text-indent: 0; }
+.mt-md .mt-olbox { width: var(--mk, 1.3em); padding-right: 0.45em; box-sizing: border-box; text-align: right; }
+.mt-md .mt-task { width: 0.95em; height: 0.95em; margin: 0; vertical-align: -0.1em; accent-color: var(--accent); cursor: pointer; }
+/* The space after a task's box, as wide as the rest of the marker box, the space itself at its right end:
+   the caret after it stands exactly where the task's text starts (see TaskWidget in markdown.js). */
+.mt-md .mt-taskgap { display: inline-block; width: calc(var(--mk, 1.3em) - 0.95em); text-align: right; white-space: pre; text-indent: 0; }
+.mt-md .mt-task:disabled { cursor: default; }
+.mt-md .mt-hr { display: inline-block; width: 100%; height: 0; border-top: 2px solid var(--border); vertical-align: middle; }
+.mt-md .mt-img { font-family: system-ui, sans-serif; font-size: 0.85em; border: 1px dashed var(--border); border-radius: 3px; padding: 0 0.4em; color: var(--text-muted); }
+
+/* ---------- status bar */
+#statusbar {
+  flex: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  height: 25px;
+  padding: 0 10px;
+  font-size: 12px;
+  background: var(--bg-bar);
+  border-top: 1px solid var(--border);
+  color: var(--text);
+  white-space: nowrap;
+}
+.st-left { display: flex; align-items: center; min-width: 0; overflow: hidden; }
+.st-sel { margin-left: 10px; padding-left: 10px; border-left: 1px solid var(--border); }
+/* Past the last abbreviation the counts end with an ellipsis, never cut mid-word. */
+.st-left.sel-only .st-sel { margin-left: 0; padding-left: 0; border-left: 0; }
+#st-counts, #st-sel { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.st-storage { margin-right: 10px; background: var(--yellow); color: #2E3440; border: 0; border-radius: 3px; padding: 1px 6px; font-weight: 600; cursor: pointer; }
+.st-storage:hover { filter: brightness(0.93); }
+.st-right { display: flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; background: var(--border); }
+.dot-red { background: var(--dot-red); }
+.dot-green { background: var(--dot-green); }
+
+/* ---------- toasts, modal, drop overlay */
+
+/* The note's save state, a hairline, then the backup's: the Export All icon, "Last full export:" and its
+   stamp, a word space apart (the bar's own gap would split the phrase). The icon stays when the label goes. */
+.st-sep { width: 1px; height: 14px; background: var(--border); margin: 0 4px; }
+.st-export { display: inline-flex; align-items: center; gap: 0.3em; }
+.st-export-icon { width: 14px; height: 14px; flex: none; }
+.st-export-label:empty { display: none; }
+.st-sep[hidden], .st-export[hidden] { display: none; }
+.save-flash { position: fixed; left: 50%; top: 45%; transform: translate(-50%, -50%); z-index: 60; pointer-events: none;
+  display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 18px; border-radius: 4px;
+  background: var(--bg-bar); color: var(--text-strong); border: 1px solid var(--border); border-left: 4px solid var(--dot-green);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); transition: opacity 0.2s; }
+.save-flash[hidden] { display: none; }
+.save-flash.out { opacity: 0; }
+.save-flash-title { font-weight: 600; }
+.save-flash-hint { font-size: 0.85em; color: var(--text-muted); }
+@media (prefers-reduced-motion: reduce) { .save-flash { transition: none; } }
+.toasts { position: fixed; right: 12px; bottom: 34px; display: flex; flex-direction: column; gap: 6px; z-index: 50; max-width: min(460px, calc(100vw - 24px)); }
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: var(--bg-bar);
+  color: var(--text-strong);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: 3px;
+  padding: 7px 6px 7px 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+.toast-warn { border-left-color: var(--yellow); }
+.toast-error { border-left-color: var(--red); }
+.toast-ok { border-left-color: var(--green); }
+.toast-text { flex: 1; }
+.toast-close { border: 0; background: none; cursor: pointer; font-size: 14px; padding: 0 4px; line-height: 1.2; border-radius: 3px; }
+.toast-close:hover { background: var(--bg-hover); }
+/* Printing is not supported: the printout only says so (Cmd/Ctrl+P shows a dialog instead). */
+.print-dialog { margin: auto; }
+.print-dialog::backdrop { background: rgba(46, 52, 64, 0.45); }
+.print-dialog p { margin: 0; line-height: 1.45; }
+@media print {
+  body > * { display: none !important; }
+  body { display: block; background: #fff; color: #000; }
+  body::after { content: attr(data-print-msg); display: block; padding: 2em; font: 14px/1.5 system-ui, sans-serif; }
+}
+.modal-backdrop { position: fixed; inset: 0; background: var(--backdrop); display: flex; align-items: center; justify-content: center; z-index: 60; }
+.modal, .print-dialog { background: var(--bg-bar); color: var(--text-strong); border: 1px solid var(--border); border-radius: 4px; padding: 16px; width: min(440px, calc(100vw - 32px)); }
+.modal h2, .print-dialog h2 { margin: 0 0 10px; font-size: 15px; }
+.rename-input { width: 100%; height: 30px; padding: 3px 8px; background: var(--bg-input); color: var(--text-strong); border: 1px solid var(--border); border-radius: 3px; }
+.rename-preview, .rename-error { margin: 8px 0 0; min-height: 1.3em; overflow-wrap: anywhere; }
+.rename-error { font-weight: 600; }
+.rename-error::before { content: "● "; color: var(--red); }
+.modal-buttons { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+.btn-primary { background: var(--accent-soft); color: var(--on-accent-soft); border-color: var(--accent-soft); font-weight: 600; }
+.btn-primary:hover:not(:disabled) { background: var(--accent-soft); filter: brightness(0.95); }
+/* A focused primary button keeps its own face. The general button:focus-visible rule above replaces the
+   background but not the text colour, which here is the dark one chosen to sit on the light accent: in
+   dark mode that left the label at 1.7:1 on the focus tint. Firefox and WebKit make an autofocused
+   button focus-visible at once, so the dialogs opened showing it. The ring still marks the focus. */
+.btn-primary:focus-visible { background-color: var(--accent-soft); }
+.drop-overlay { position: fixed; inset: 6px; border: 2px dashed var(--accent); border-radius: 4px; background: var(--backdrop); display: flex; align-items: center; justify-content: center; z-index: 70; pointer-events: none; }
+.drop-overlay span { background: var(--bg-bar); color: var(--text-strong); padding: 10px 16px; border-radius: 4px; border: 1px solid var(--border); font-size: 15px; }
+
+/* ---------- find in this tab */
+.findbar { flex: none; display: flex; align-items: center; gap: 4px; padding: 4px 6px; background: var(--bg-bar); border-bottom: 1px solid var(--border); }
+.find-input { flex: 0 1 280px; min-width: 120px; height: 26px; padding: 2px 8px; background: var(--bg-input); color: var(--text-strong); border: 1px solid var(--border); border-radius: 3px; }
+.find-input.no-match { border-color: var(--red); }
+.find-count { min-width: 6em; padding: 0 4px; color: var(--text); font-variant-numeric: tabular-nums; }
+.find-btn svg.icon { width: 18px; height: 18px; }
+.mt-find { background: var(--find-bg); border-radius: 2px; }
+.mt-find-current { background: var(--find-current-bg); box-shadow: 0 0 0 1px var(--accent); }
+
+/* ---------- shortcut sheet */
+.keys-dialog { width: min(560px, calc(100vw - 32px)); max-height: calc(100vh - 48px); }
+.keys-body { overflow-y: auto; max-height: calc(100vh - 170px); }
+.keys-body th { text-align: left; padding: 14px 0 6px; font-size: 13px; }
+.keys-body tr:first-child th { padding-top: 4px; }
+.keys-body table { border-collapse: collapse; width: 100%; }
+.keys-body td { padding: 3px 6px 3px 0; vertical-align: top; }
+.keys-body td:first-child { width: 42%; }
+.keys-body kbd { display: inline-block; margin: 1px 0; white-space: nowrap; font: 12px ui-monospace, Menlo, Consolas, monospace; padding: 1px 5px; border: 1px solid var(--border); border-radius: 3px; background: var(--bg-input); color: var(--text-strong); }
+
+/* Shown by the loader when the browser cannot start the app (too old). */
+.mt-fail { margin: 12px 16px; padding: 10px 12px; border: 2px solid #BF616A; border-radius: 4px; font: 15px system-ui, sans-serif; }

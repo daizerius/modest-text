@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="__CSP__">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta name="color-scheme" content="light dark">
+<title>Modest Text</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%232E3440'/%3E%3Cpath d='M4 12V4l4 5 4-5v8' stroke='%2388C0D0' stroke-width='1.6' fill='none'/%3E%3C/svg%3E">
+<!--LICENSES-->
+<style>
+/*STYLE*/
+</style>
+</head>
+<body>
+<header id="topbar">
+  <span id="app-title" class="app-title" translate="no">Modest Text</span>
+  <div id="bar-settings" class="bar-group bar-settings">
+    <div class="font-picker">
+      <button type="button" id="font-btn" class="btn select-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="font-list"><span id="font-label" class="font-label"></span><span class="caret" aria-hidden="true">▾</span></button>
+      <div id="font-list" class="font-list" role="menu" tabindex="-1" data-i18n-tip="font" hidden></div>
+    </div>
+    <span class="size-picker"><select id="size-select" class="btn select"></select><span class="caret" aria-hidden="true">▾</span></span>
+    <button type="button" id="btn-wrap" class="icon-btn toggle-btn" aria-pressed="true"><svg class="icon" data-icon="wrap" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6h16"/><path d="M4 12h13a3 3 0 0 1 0 6h-4"/><path d="m15 16-2 2 2 2"/><path d="M4 18h5"/></svg></button>
+    <button type="button" id="btn-readwidth" class="icon-btn toggle-btn" aria-pressed="false"><svg class="icon" data-icon="readwidth" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 4v16"/><path d="M20 4v16"/><path d="M8 8h8"/><path d="M8 12h8"/><path d="M8 16h5"/></svg></button>
+  </div>
+  <div class="bar-group bar-right">
+    <button type="button" id="btn-import" class="icon-btn" data-i18n-tip="importTip"><svg class="icon" data-icon="import" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3v11"/><path d="m7 9 5 5 5-5"/><path d="M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></svg></button>
+    <input type="file" id="file-input" multiple accept=".txt,.md" hidden>
+    <button type="button" id="btn-export" class="icon-btn" data-i18n-tip="exportTip"><svg class="icon" data-icon="export" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5"/><path d="M12 18v-7"/><path d="m9 14 3-3 3 3"/></svg></button>
+    <button type="button" id="btn-export-all" class="icon-btn" data-i18n-tip="exportAllTip"><svg class="icon" data-icon="export-all" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9"/><path d="M12 18v-6"/><path d="m9.5 14.5 2.5-2.5 2.5 2.5"/></svg></button>
+    <span class="bar-sep" aria-hidden="true"></span>
+    <button type="button" id="btn-theme" class="icon-btn"><svg class="icon" data-icon="light" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4.6"/><path d="M12 3.9v-.5M12 20.1v.5M3.9 12h-.5M20.1 12h.5M6.3 6.3l-.4-.4M17.7 17.7l.4.4M6.3 17.7l-.4.4M17.7 6.3l.4-.4"/></svg><svg class="icon" data-icon="dark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19.2 14.25A7.2 7.2 0 1 1 9.75 4.8a5.85 5.85 0 0 0 9.45 9.45z"/></svg></button>
+    <button type="button" id="btn-lang" class="icon-pair lang-pair"><span class="pair-half" data-lang="en">EN</span><span class="pair-sep" aria-hidden="true"></span><span class="pair-half" data-lang="fr">FR</span></button>
+    <span class="bar-sep" aria-hidden="true"></span>
+    <button type="button" id="btn-help" class="icon-btn" data-i18n-tip="helpTip"><svg class="icon" data-icon="help" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.2a2.6 2.6 0 0 1 5 .8c0 1.8-2.5 2.2-2.5 3.8"/><path d="M12 17h.01"/></svg></button>
+  </div>
+</header>
+<nav id="tabbar">
+  <div id="tabstrip" class="tabstrip">
+    <div id="tabs" role="tablist" data-i18n-tip="tabs"></div>
+    <button type="button" id="btn-new" class="new-tab" data-i18n-tip="newTab">+</button>
+    <button type="button" id="btn-undo-close" class="icon-btn tab-tool" disabled><svg class="icon" data-icon="reopen" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 12a9 9 0 1 0 2.6-6.4L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/></svg></button>
+  </div>
+  <button type="button" id="btn-tablist" class="icon-btn tab-tool" data-i18n-tip="tabListTip" aria-haspopup="menu" aria-expanded="false" aria-controls="tab-list" hidden><svg class="icon" data-icon="tablist" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7h11"/><path d="M4 12h11"/><path d="M4 17h7"/><path d="m16 15 2.5 2.5L21 15"/></svg></button>
+  <div id="tab-list" class="tab-list" role="menu" tabindex="-1" hidden></div>
+</nav>
+<div id="formatbar" class="formatbar" role="toolbar" data-i18n-tip="fmtBar">
+  <div class="fmt-rows">
+    <div class="fmt-part">
+      <div class="fmt-group">
+        <button type="button" id="btn-md" class="icon-pair" aria-pressed="false"><span class="pair-half" data-mode="plain"><svg class="icon" data-icon="plain" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5"/><path d="M9 13h6"/><path d="M9 17h6"/></svg></span><span class="pair-half" data-mode="md"><svg class="icon" data-icon="markdown" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 15V9l3 3 3-3v6"/><path d="M17 9v6"/><path d="m15 13 2 2 2-2"/></svg></span></button>
+      </div>
+      <div class="fmt-group">
+        <button type="button" id="btn-undo" class="hist-btn" data-hist="undo" disabled><svg class="icon" data-icon="undo" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5 4 9l4 4"/><path d="M4 9h11a5 5 0 0 1 0 10h-4"/></svg></button>
+        <button type="button" id="btn-redo" class="hist-btn" data-hist="redo" disabled><svg class="icon" data-icon="redo" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m16 5 4 4-4 4"/><path d="M20 9H9a5 5 0 0 0 0 10h4"/></svg></button>
+      </div>
+      <div class="fmt-group">
+        <button type="button" class="fmt-btn" data-fmt="bold"><b>B</b></button>
+        <button type="button" class="fmt-btn" data-fmt="italic"><i>I</i></button>
+        <button type="button" class="fmt-btn" data-fmt="strike"><span class="fmt-strike">S</span></button>
+        <button type="button" class="fmt-btn" data-fmt="highlight"><span class="fmt-hl">ab</span></button>
+        <button type="button" class="fmt-btn fmt-mono" data-fmt="code">&lt;/&gt;</button>
+        <button type="button" class="fmt-btn" data-fmt="link"><svg class="icon" data-icon="link" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><g transform="rotate(-45 12 12)"><path d="M16.3 15.5h2.5a3.5 3.5 0 0 0 0-7h-5.5a3.5 3.5 0 0 0-3.5 3.5"/><path d="M7.7 8.5H5.2a3.5 3.5 0 0 0 0 7h5.5a3.5 3.5 0 0 0 3.5-3.5"/></g></svg></button>
+      </div>
+    </div>
+    <div class="fmt-part">
+      <div class="fmt-group">
+        <button type="button" class="fmt-btn" data-fmt="h1">H1</button>
+        <button type="button" class="fmt-btn" data-fmt="h2">H2</button>
+        <button type="button" class="fmt-btn" data-fmt="h3">H3</button>
+      </div>
+      <div class="fmt-group">
+        <button type="button" class="fmt-btn" data-fmt="ul">•</button>
+        <button type="button" class="fmt-btn" data-fmt="ol">1.</button>
+        <button type="button" class="fmt-btn" data-fmt="tasklist"><svg class="icon" data-icon="tasklist" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="3.5" width="17" height="17" rx="2.5"/><path d="m8 12.5 3 3 5.5-6.5"/></svg></button>
+        <button type="button" class="fmt-btn" data-fmt="quote">❝</button>
+      </div>
+      <div class="fmt-group">
+        <button type="button" class="fmt-btn fmt-mono" data-fmt="codeblock">{ }</button>
+        <button type="button" class="fmt-btn" data-fmt="hr"><span class="fmt-rule"></span></button>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="banner-full" class="banner banner-full" role="alert" hidden>
+  <span class="banner-icon" aria-hidden="true">●</span>
+  <span class="banner-text" data-i18n="fullBanner">Storage full: recent changes are not saved.</span>
+  <button type="button" id="banner-export-all" class="btn banner-btn" data-i18n="exportAll" data-i18n-tip="exportAllTip">Export All</button>
+</div>
+<div id="banner-ro" class="banner banner-ro" role="status" hidden>
+  <span class="banner-text" data-i18n="roBanner">Open in another window</span>
+  <span class="banner-sep" aria-hidden="true">·</span>
+  <button type="button" id="btn-edit-here" class="btn banner-btn" data-i18n="editHere" data-i18n-tip="editHereTip">Edit here instead</button>
+</div>
+<div id="findbar" class="findbar" role="search" hidden>
+  <input type="text" id="find-input" class="find-input" autocomplete="off" spellcheck="false">
+  <span id="find-count" class="find-count" aria-live="polite"></span>
+  <button type="button" id="find-prev" class="icon-btn find-btn"><svg class="icon" data-icon="up" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 15 6-6 6 6"/></svg></button>
+  <button type="button" id="find-next" class="icon-btn find-btn"><svg class="icon" data-icon="down" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></button>
+  <button type="button" id="find-close" class="icon-btn find-btn"><svg class="icon" data-icon="close" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+</div>
+<main id="editor"></main>
+<article id="help-view" class="help-view" tabindex="0" hidden></article>
+<footer id="statusbar">
+  <div class="st-left" data-i18n-tip="counts" role="group">
+    <span id="st-counts"></span>
+    <span id="st-sel" class="st-sel" hidden></span>
+  </div>
+  <div class="st-right">
+    <button type="button" id="st-storage" class="st-storage" hidden></button>
+    <span id="st-status" aria-live="polite"></span>
+    <span id="st-dot" class="dot" role="img"></span>
+    <span id="st-sep" class="st-sep" aria-hidden="true"></span>
+    <span id="st-export" class="st-export" role="group"><svg class="icon st-export-icon" data-icon="export-all" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9"/><path d="M12 18v-6"/><path d="m9.5 14.5 2.5-2.5 2.5 2.5"/></svg><span id="st-export-label" class="st-export-label"></span><span id="st-time">—</span></span>
+  </div>
+</footer>
+<div id="toasts" class="toasts" aria-live="polite"></div>
+<div id="save-flash" class="save-flash" role="status" aria-live="polite" hidden><span id="save-flash-title" class="save-flash-title"></span><span id="save-flash-hint" class="save-flash-hint"></span></div>
+<div id="modal" class="modal-backdrop" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="rename-title">
+    <h2 id="rename-title" data-i18n="renameTitle">Rename tab</h2>
+    <input type="text" id="rename-input" class="rename-input" maxlength="400" autocomplete="off" spellcheck="false" data-i18n-tip="renameLabel">
+    <p id="rename-preview" class="rename-preview" aria-live="polite"></p>
+    <p id="rename-error" class="rename-error" role="alert" data-i18n="renameEmpty" hidden>The name cannot be empty.</p>
+    <div class="modal-buttons">
+      <button type="button" id="rename-cancel" class="btn" data-i18n="cancel" data-i18n-tip="cancel">Cancel</button>
+      <button type="button" id="rename-ok" class="btn btn-primary" data-i18n="renameOk" data-i18n-tip="renameOk">Rename</button>
+    </div>
+  </div>
+</div>
+<dialog id="print-dialog" class="print-dialog" aria-labelledby="print-title">
+  <h2 id="print-title" data-i18n="printTitle">Printing is not available</h2>
+  <p id="print-text" data-i18n="printText"></p>
+  <div class="modal-buttons"><button type="button" id="print-ok" class="btn btn-primary" data-i18n="printOk" data-i18n-tip="printOk" autofocus>OK</button></div>
+</dialog>
+<dialog id="keys-dialog" class="print-dialog keys-dialog" aria-labelledby="keys-title">
+  <h2 id="keys-title" data-i18n="keysTitle">Keyboard shortcuts</h2>
+  <div id="keys-body" class="keys-body"></div>
+  <div class="modal-buttons"><button type="button" id="keys-ok" class="btn btn-primary" data-i18n="keysClose" data-i18n-tip="keysClose" autofocus>Close</button></div>
+</dialog>
+<div id="drop-overlay" class="drop-overlay" hidden><span data-i18n="dropHint">Drop .txt or .md files to import them</span></div>
+<script>__SCRIPT__</script>
+</body>
+</html>
