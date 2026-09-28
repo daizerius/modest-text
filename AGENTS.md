@@ -82,6 +82,8 @@ Run one project or one test while working, but run all six before committing.
   and nothing answers the rest. Claim the key in every state, or leave it alone.
 - **Comments say why, not what**, and name the measurement when there was one.
 - **Every fix gets a test that fails without it.** Check that it does.
+- **No links to AI chat sessions,** anywhere: files, commit messages, tags, releases, issues or pull
+  requests. A co-author trailer is fine; a session URL is not.
 - The interface is English and French throughout; user-visible strings live in `src/i18n.js`.
 - Help is a plain HTML page (`#help-view`), not a CodeMirror document, so the browser's own find
   works there and the app's find bar deliberately stays out of it.
@@ -155,13 +157,8 @@ Map API). `build.mjs` targets exactly those three versions.
   prevention). Not verified for a copy opened from disk (`file://`). The app asks for persistent
   storage, and Help, README and ABOUT tell Safari users to open it weekly and keep Export All current.
 
-## TODO
+## Planned work
 
-- [ ] **Keep formatting when pasting into a Markdown tab.** Every paste is plain text. Explore turning
-      formatted text copied from a web page, Word, Google Docs or Pages into Markdown (headings,
-      emphasis, links, lists, quotes, code) when pasting into a Markdown tab; plain-text tabs keep
-      pasting plain text. Open questions: which HTML to accept, what to drop, whether a converter fits
-      the size budget, and an undo that gives back the plain version.
-- [ ] **Mobile — phone and tablet, Android and iOS.** Nothing has been tested on a touch device.
-      Expect work on the toolbar at narrow widths, touch targets, the tab strip, the find bar,
-      the software keyboard, and whether localStorage survives as the notes' only home.
+Ideas and planned features are tracked as [GitHub Issues](https://github.com/daizerius/modest-text/issues),
+not in this file. This file keeps what a contributor needs while working: traps, conventions and known
+issues with the tests.
