@@ -130,7 +130,7 @@ here).
 
 On Windows, the developer-tools keys — `Ctrl+Shift+I`, `Ctrl+Shift+C`, and in Firefox `Ctrl+Shift+K`,
 `Ctrl+Shift+E`, `Ctrl+Shift+M` — are claimed too, but a browser may handle them before the page sees
-them. [QA-CHECKLIST.md](QA-CHECKLIST.md) (§7.6) asks testers to note which.
+them. [qa-checklist.md](qa-checklist.md) (§7.6) asks testers to note which.
 
 Every key the app binds is claimed in every state: a shortcut that works only sometimes lets the
 browser's own command answer the other times, which is worse than never taking the key.

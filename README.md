@@ -78,7 +78,7 @@ runs it on Windows for every push and pull request to `master` that changes code
 | [CHANGELOG.md](CHANGELOG.md) | What changed in each version |
 | [specs.md](specs.md) | The living specification: what the app does, in detail |
 | [keyboard-shortcuts.md](keyboard-shortcuts.md) | Every shortcut, and the reasoning behind each |
-| [QA-CHECKLIST.md](QA-CHECKLIST.md) | What to check by hand before calling a build done |
+| [qa-checklist.md](qa-checklist.md) | What to check by hand before calling a build done |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | How to report a problem or propose a change |
 | [SECURITY.md](SECURITY.md) | How to report a vulnerability privately |
 | [AGENTS.md](AGENTS.md) | Working notes for anyone, or any coding agent, changing the code; how to release |

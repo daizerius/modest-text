@@ -142,7 +142,7 @@ window.addEventListener('keydown', (e) => {
   }
   // F1, and Shift+Cmd/Ctrl+I ("info"): the Help tab, on every platform. Off a Mac, Ctrl+Shift+I is also
   // the browsers' developer tools: the app claims it all the same, and whether a browser lets a page have
-  // it is for a test on Windows to show (QA-CHECKLIST.md, §7.6).
+  // it is for a test on Windows to show (qa-checklist.md, §7.6).
   if ((k === 'f1' && !mod && !e.ctrlKey && !e.altKey && !e.shiftKey) || (mod && e.shiftKey && !e.altKey && k === 'i')) {
     e.preventDefault();
     if (modal.hidden && !printDialog.open) openHelp();
