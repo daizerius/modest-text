@@ -365,6 +365,33 @@ export function livePreview(getT) {
   return plugin;
 }
 
+// A link's syntax in colours of its own, in both modes, so the parts tell apart at a glance: [ ] (and < >),
+// ( ), and the address. In a Markdown tab they show only with the cursor in the link (buildDecorations).
+function linkSyntaxDecorations(view) {
+  const { doc } = view.state;
+  const out = [];
+  const tree = syntaxTree(view.state);
+  for (const { from, to } of view.visibleRanges) {
+    tree.iterate({
+      from, to,
+      enter: (node) => {
+        if (node.name !== 'Link' && node.name !== 'Autolink' && node.name !== 'Image') return;
+        for (let c = node.node.firstChild; c; c = c.nextSibling) {
+          if (c.name === 'URL') out.push(mark('mt-link-url').range(c.from, c.to));
+          else if (c.name === 'LinkMark') out.push(mark(/[()]/.test(doc.sliceString(c.from, c.to)) ? 'mt-link-paren' : 'mt-link-bracket').range(c.from, c.to));
+        }
+      },
+    });
+  }
+  return Decoration.set(out, true);
+}
+export const linkSyntax = ViewPlugin.fromClass(class {
+  constructor(view) { this.decorations = linkSyntaxDecorations(view); }
+  update(u) {
+    if (u.docChanged || u.viewportChanged || syntaxTree(u.startState) !== syntaxTree(u.state)) this.decorations = linkSyntaxDecorations(u.view);
+  }
+}, { decorations: (v) => v.decorations });
+
 // Find a safe link URL at a document position.
 export function linkAt(state, pos) {
   const tree = syntaxTree(state);

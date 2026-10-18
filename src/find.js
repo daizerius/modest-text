@@ -4,7 +4,7 @@
 // Find only sees the lines CodeMirror has drawn.
 import { StateField, StateEffect, EditorSelection, RangeSetBuilder } from '@codemirror/state';
 import { Decoration, EditorView, ViewPlugin } from '@codemirror/view';
-import { $, S, activeTab, t } from './state.js';
+import { $, S, activeTab, keyTip, t } from './state.js';
 
 export const setFind = StateEffect.define(); // the query ('' = none)
 const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -149,8 +149,8 @@ export function updateFindTips() {
   const set = (el, s) => { el.title = s; el.setAttribute('aria-label', s); };
   set(input, t('findLabel'));
   input.placeholder = t('findLabel');
-  set($('find-next'), `${t('findNext')} (${t.key('Enter')}, ${t.key('findNext')})`);
-  set($('find-prev'), `${t('findPrev')} (${t.key('Shift-Enter')}, ${t.key('findPrev')})`);
-  set($('find-close'), `${t('findClose')} (Esc)`);
+  set($('find-next'), keyTip(t('findNext'), t.key('Enter'), t.key('findNext')));
+  set($('find-prev'), keyTip(t('findPrev'), t.key('Shift-Enter'), t.key('findPrev')));
+  set($('find-close'), keyTip(t('findClose'), t.key('Escape')));
   renderCount();
 }

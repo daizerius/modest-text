@@ -5,7 +5,7 @@ import { makeT, SHORTCUTS } from './i18n.js';
 import { FONT_GROUPS, defaultFont, cssFamily, genericOf, kindOf } from './fonts.js';
 import { activeFormats } from './markdown.js';
 import { FORMATS } from './format.js';
-import { $, KEYS, S, SIZES, activeTab, html, setT, settings, t } from './state.js';
+import { $, KEYS, S, SIZES, activeTab, html, keyTip, setT, settings, t } from './state.js';
 import { charKey } from './keys.js';
 import { formatStamp } from './text.js';
 import { syncView } from './editor.js';
@@ -182,7 +182,7 @@ export function updateToolbar() {
   const undoBtn = $('btn-undo-close');
   const last = S.closedStack[S.closedStack.length - 1];
   undoBtn.disabled = !last || S.role !== 'editor';
-  setTip(undoBtn, last ? 'undoCloseName' : 'undoCloseEmpty', last ? { name: last.name } : undefined);
+  tipWithKey(undoBtn, last ? 'undoCloseName' : 'undoCloseEmpty', 'reopenTabKey', last ? { name: last.name } : undefined);
   const mdBtn = $('btn-md');
   const isMd = !!tab && tab.mode === 'md';
   mdBtn.setAttribute('aria-pressed', String(isMd));
@@ -247,9 +247,9 @@ export function updateFormatBar() {
   updateRoving();
   renderActiveFormats();
 }
-// Tooltip and accessible name: the label plus its shortcut in the platform's own key names ("Bold (Cmd+B)").
-function tipWithKey(el, key, shortcut) {
-  const s = SHORTCUTS[shortcut] ? `${t(key)} (${t.key(shortcut)})` : t(key);
+// Tooltip and accessible name: the shortcut, then the label ("⌘B · Bold").
+function tipWithKey(el, key, shortcut, vars) {
+  const s = SHORTCUTS[shortcut] ? keyTip(t(key, vars), t.key(shortcut)) : t(key, vars);
   el.title = s;
   el.setAttribute('aria-label', s);
 }
@@ -400,7 +400,10 @@ $('btn-theme').addEventListener('click', () => {
 
 // Import, Export and Export All: their keys, and when the last full export ran.
 export function updateFileTips() {
-  const tip = (id, key, name, extra = '') => { const s = `${t(key)} (${t.key(name)})${extra}`; $(id).title = s; $(id).setAttribute('aria-label', s); };
+  const tip = (id, key, name, extra = '') => { const s = keyTip(t(key), t.key(name)) + extra; $(id).title = s; $(id).setAttribute('aria-label', s); };
+  const help = keyTip(t('helpTip'), 'F1', t.key('help'));
+  $('btn-help').title = help;
+  $('btn-help').setAttribute('aria-label', help);
   tip('btn-import', 'importTip', 'importKey');
   tip('btn-export', 'exportTip', 'exportKey');
   const last = S.lastExport ? t('lastExport', { when: formatStamp(new Date(S.lastExport), ' ∙ ', 1) }) : t('lastExportNever');

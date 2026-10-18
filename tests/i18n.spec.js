@@ -33,8 +33,8 @@ for (const [platform, mod, alt, other] of [['MacIntel', '⌘', '⌥', /\bCtrl\b|
       // Shortcuts in the platform's order: ⌥⌘1 / Ctrl+Shift+1, ⇧⌘X / Ctrl+Shift+X, ⌘J / Ctrl+J.
       const sh = lang === 'fr' ? 'Maj' : 'Shift';
       for (const k of mac ? ['⌥⌘1', '⇧⌘X', '⌘J', '⌥⇧↑', '⇧⌘↩'] : [`Ctrl+${sh}+1`, `Ctrl+${sh}+X`, 'Ctrl+J', `Alt+${sh}+↑`, `Ctrl+${sh}+${lang === 'fr' ? 'Entrée' : 'Enter'}`]) expect(help, `${lang} ${k}`).toContain('`' + k + '`');
-      await expect(page.locator('.fmt-btn[data-fmt="bold"]')).toHaveAttribute('title', mac ? /\(⌘B\)$/ : /\(Ctrl\+B\)$/);
-      await expect(page.locator('#btn-undo')).toHaveAttribute('aria-label', mac ? /\(⌘Z\)$/ : /\(Ctrl\+Z\)$/);
+      await expect(page.locator('.fmt-btn[data-fmt="bold"]')).toHaveAttribute('title', mac ? /^⌘B · / : /^Ctrl\+B · /);
+      await expect(page.locator('#btn-undo')).toHaveAttribute('aria-label', mac ? /^⌘Z · / : /^Ctrl\+Z · /);
       const tips = await page.evaluate(() => [...document.querySelectorAll('[title], [aria-label]')].flatMap((e) => [e.title, e.getAttribute('aria-label')]).filter(Boolean).join('\n'));
       expect(tips, `${lang} tooltips`).not.toMatch(other);
     }
@@ -101,9 +101,9 @@ test('15b. every UI string — buttons, tooltips, dropdowns, modal, banners, sta
 
   // Specific spots.
   await expect(page.locator('#app-title')).toHaveText('Modest Text');
-  await expect(page.locator('#btn-export')).toHaveAttribute('aria-label', /^Exporter\u00A0: /);
-  await expect(page.locator('#btn-export-all')).toHaveAttribute('aria-label', /^Tout exporter\u00A0: /);
-  await expect(page.locator('#btn-import')).toHaveAttribute('aria-label', /^Importer\u00A0: /);
+  await expect(page.locator('#btn-export')).toHaveAttribute('aria-label', / · Exporter\u00A0: /);
+  await expect(page.locator('#btn-export-all')).toHaveAttribute('aria-label', / · Tout exporter\u00A0: /);
+  await expect(page.locator('#btn-import')).toHaveAttribute('aria-label', / · Importer\u00A0: /);
   await expect(page.locator('#banner-export-all')).toHaveText('Tout exporter');
   await expect(page.locator('#btn-lang [data-lang="fr"]')).toHaveClass(/active/);
   await expect(page.locator('#btn-lang [data-lang="en"]')).not.toHaveClass(/active/);
@@ -141,7 +141,7 @@ test('15b. every UI string — buttons, tooltips, dropdowns, modal, banners, sta
   await expect(b.locator('#st-status')).toHaveText('Lecture seule');
   // And back to English.
   await setLang(page, 'en');
-  await expect(page.locator('#btn-export')).toHaveAttribute('title', /^Export: /);
+  await expect(page.locator('#btn-export')).toHaveAttribute('title', / · Export: /);
   await expect(page.locator('#st-counts')).toHaveText(/lines? · \d+ words? · \d+ characters?/);
 });
 

@@ -12,6 +12,11 @@ import { $, KEYS, t } from './state.js';
 function sections(mac) {
   const only = (cond, ...alts) => (cond ? alts : []);
   return [
+    ['ksHelpSec', [
+      // Off a Mac, Ctrl+Shift+I is also the browsers' developer tools; the app claims it (main.js).
+      ['helpTip', [['=F1'], ['help']]],
+      ['ksSheet', [['keys']]],
+    ]],
     ['ksMove', [
       ['ksBars', [['bars']]],
       ['ksUpDown', [['=ArrowUp', '=ArrowDown']]],
@@ -19,6 +24,8 @@ function sections(mac) {
       ['ksInBarEnds', [['=Home', '=End']]],
       ['ksGroups', [['=Tab', '=Shift-Tab']]],
       ['ksEsc', [['=Escape']]],
+    ]],
+    ['ksTabs', [
       ['ksTabOpen', [['Enter'], ['=Space']]],
       ['ksTabRename', [['=F2'], ['=R']]],
       // stripClose: Delete off a Mac, and on a Mac its delete key (⌫, which sends Backspace).
@@ -32,11 +39,8 @@ function sections(mac) {
     ['ksFormat', [
       ['fmt_bold', [['bold']]], ['fmt_italic', [['italic']]], ['fmt_strike', [['strike']]], ['fmt_highlight', [['highlight']]],
       ['fmt_code', [['code']]], ['fmt_link', [['link']]], ['ksHeadings', [{ range: ['h1', 'h6'] }]],
-      ['fmt_ul', [['ul'], ['ul2']]], ['fmt_ol', [['ol'], ['ol2']]], ['fmt_tasklist', [['tasklist'], ['tasklist2']]], ['fmt_quote', [['quote']]],
-      ['fmt_codeblock', [['codeblock']]], ['fmt_hr', [['hr']]], ['ksTask', [['task']]], ['ksMode', [['mode']]],
-    ]],
-    ['ksFiles', [
-      ['ksImport', [['importKey']]], ['ksExport', [['exportKey']]], ['ksExportAll', [['exportAllKey']]],
+      ['fmt_ul', [['ul'], ['ul2']]], ['fmt_ol', [['ol'], ['ol2']]], ['fmt_tasklist', [['tasklist'], ['tasklist2']]], ['ksTask', [['task']]],
+      ['fmt_quote', [['quote']]], ['fmt_codeblock', [['codeblock']]], ['fmt_hr', [['hr']]], ['ksMode', [['mode']]],
     ]],
     ['ksEdit', [
       // Off a Mac, Ctrl+Y is the name; Ctrl+Shift+Z is accepted too.
@@ -45,13 +49,14 @@ function sections(mac) {
       ['ksFindNext', [['findNext', 'findPrev'], ...only(!mac, ['=F3', '=Shift-F3'])]],
       ['ksLineMove', [['Alt-ArrowUp', 'Alt-ArrowDown']]], ['ksLineCopy', [['Shift-Alt-ArrowUp', 'Shift-Alt-ArrowDown']]],
       ['ksLineBelow', [['task']]], ['ksLineAbove', [['lineAbove']]], ['ksLineDelete', [['Shift-Mod-k']]], ['ksLineSelect', [['selectLine']]], ['ksIndent', [['Mod-]', 'Mod-[']]],
-      ['ksPrint', [['Mod-p']]], ['ksSheet', [['keys']]],
-      // Off a Mac, Ctrl+Shift+I is also the browsers' developer tools; the app claims it (main.js).
-      ['helpTip', [['=F1'], ['help']]],
+      ['ksPrint', [['Mod-p']]],
     ]],
     ['ksWrite', [
       ['ksTabKey', [['=Tab', '=Shift-Tab']]], ['ksEnterList', [['Enter']]], ['ksBackMark', [['=Backspace']]],
       ['ksPairs', [['#"'], ['#\u2018'], ['#('], ['#['], ['#{']]],
+    ]],
+    ['ksFiles', [
+      ['ksImport', [['importKey']]], ['ksExport', [['exportKey']]], ['ksExportAll', [['exportAllKey']]],
     ]],
   ];
 }

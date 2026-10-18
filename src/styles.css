@@ -21,6 +21,9 @@
   --code-bg: #D8DEE9;
   --sel: #C9D6E6;
   --link: #2E3440;
+  --link-url: #4C6B35;
+  --link-bracket: #7A4E74;
+  --link-paren: #99472A;
   --banner-full-bg: #EBD3D6;
   --banner-ro-bg: #D8DEE9;
   --red: #BF616A;
@@ -52,6 +55,9 @@
   --code-bg: #434C5E;
   --sel: #4C566A;
   --link: #88C0D0;
+  --link-url: #A3BE8C;
+  --link-bracket: #BC98B5;
+  --link-paren: #D8927A;
   --banner-full-bg: #5A3D46;
   --banner-ro-bg: #434C5E;
   --dot-red: #FF5A64;
@@ -372,6 +378,11 @@ html.tab-dragging, html.tab-dragging * { cursor: grabbing !important; }
 #editor .mt-md .cm-line.mt-quote-2 { box-shadow: inset 18px 0 var(--bg-editor), inset 22px 0 var(--accent), inset 30px 0 var(--bg-editor), inset 34px 0 var(--accent); --line-pad: 48px; }
 #editor .mt-md .cm-line.mt-quote-3 { box-shadow: inset 18px 0 var(--bg-editor), inset 22px 0 var(--accent), inset 30px 0 var(--bg-editor), inset 34px 0 var(--accent), inset 42px 0 var(--bg-editor), inset 46px 0 var(--accent); --line-pad: 60px; }
 .mt-md .mt-link { color: var(--link); text-decoration: underline; text-decoration-color: var(--accent); text-decoration-thickness: 2px; text-underline-offset: 2px; }
+.mt-link-url { color: var(--link-url); }
+.mt-link-bracket { color: var(--link-bracket); }
+.mt-link-paren { color: var(--link-paren); }
+/* An autolink's address is its text: in a Markdown tab it looks like any link's text. */
+.mt-md .mt-link .mt-link-url, .mt-md .mt-link-url .mt-link, .mt-md .mt-link.mt-link-url { color: var(--link); }
 .mt-md .mt-bullet { color: var(--accent); font-weight: 700; }
 .mt-md .mt-listmark { color: var(--text-muted); }
 /* List markers in a box of the list's marker width (--mk, set on the line with its hanging indent). */

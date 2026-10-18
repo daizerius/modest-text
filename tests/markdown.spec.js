@@ -201,3 +201,24 @@ test('10. raw HTML, img onerror and javascript: links stay inert; images are nev
   expect(requests.filter((u) => u.includes('127.0.0.1:9') || u.endsWith('/x'))).toEqual([]);
   expect(await docText(page)).toBe(src);
 });
+
+test('a link\'s brackets, parentheses and address each have their own colour, in plain-text and Markdown tabs', async ({ page, appURL }) => {
+  await openFresh(page, appURL); // a plain-text tab
+  const doc = 'see [a link](https://example.com/x) and <https://example.org>';
+  const colours = () => page.evaluate(() => Object.fromEntries(['mt-link-bracket', 'mt-link-paren', 'mt-link-url'].map((c) =>
+    [c, [...document.querySelectorAll('.' + c)].map((e) => [e.textContent, getComputedStyle(e).color])])));
+  for (const md of [false, true]) {
+    if (md) await page.click('#btn-md');
+    await setDoc(page, doc);
+    await setCursor(page, doc.indexOf('a link') + 2); // in a Markdown tab, a link's syntax shows only with the cursor in it
+    const c = await colours();
+    expect(c['mt-link-bracket'].map(([s]) => s), String(md)).toEqual(md ? ['[', ']'] : ['[', ']', '<', '>']);
+    expect(c['mt-link-paren'].map(([s]) => s)).toEqual(['(', ')']);
+    expect(c['mt-link-url'].map(([s]) => s)).toEqual(['https://example.com/x', 'https://example.org']);
+    // In a Markdown tab, an autolink's address is the link's text, coloured as such.
+    if (md) expect(c['mt-link-url'][1][1]).toBe(await page.locator('.mt-link', { hasText: 'example.org' }).evaluate((e) => getComputedStyle(e).color));
+    const [b, p, u, text] = [c['mt-link-bracket'][0][1], c['mt-link-paren'][0][1], c['mt-link-url'][0][1],
+      await page.locator('.cm-line').first().evaluate((e) => getComputedStyle(e).color)];
+    expect(new Set([b, p, u, text]).size).toBe(4);
+  }
+});

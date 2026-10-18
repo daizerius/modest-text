@@ -204,13 +204,16 @@ test('punctuation shortcuts are named as this keyboard prints them, and fall bac
     if (map) await stubLayout(page, map);
     await page.goto(appURL);
     await expect(page.locator('html[data-ready="1"]')).toHaveCount(1);
-    return sheet();
+    const keys = await sheet();
+    // The tooltips start with the same key names as the sheet.
+    await expect(page.locator('.fmt-btn[data-fmt="hr"]')).toHaveAttribute('title', `${keys['Horizontal rule']} · Horizontal rule`);
+    return keys;
   };
 
   let r = await withLayout(LAYOUTS.us);
   expect(r['Indent / outdent the line']).toMatch(/\]/);
   expect(r['Indent / outdent the line']).toMatch(/\[/);
-  expect(r['This list']).toMatch(/\/$/);
+  expect(r['Show or hide this list of keyboard shortcuts']).toMatch(/\/$/);
   expect(r['Previous / next tab']).toContain(',');
 
   // A French AZERTY keyboard prints other characters on those same physical keys, and is told so.
@@ -218,7 +221,7 @@ test('punctuation shortcuts are named as this keyboard prints them, and fall bac
   expect(r['Indent / outdent the line'], 'the two keys right of P print $ and ^').toMatch(/\$/);
   expect(r['Indent / outdent the line']).toMatch(/\^/);
   expect(r['Indent / outdent the line']).not.toMatch(/[[\]]/);
-  expect(r['This list'], 'the key right of them prints !').toMatch(/!$/);
+  expect(r['Show or hide this list of keyboard shortcuts'], 'the key right of them prints !').toMatch(/!$/);
   expect(r['Previous / next tab'], 'the two keys right of M print ; and :').toMatch(/;/);
   expect(r['Previous / next tab']).toMatch(/:/);
 
@@ -228,7 +231,7 @@ test('punctuation shortcuts are named as this keyboard prints them, and fall bac
   });
   r = await withLayout(null);
   expect(r['Indent / outdent the line']).toMatch(/\]/);
-  expect(r['This list']).toMatch(/\/$/);
+  expect(r['Show or hide this list of keyboard shortcuts']).toMatch(/\/$/);
 });
 
 test('↑ from the tabs reaches the top bar: ← → go through its controls, ↓ back to the tabs; the size field opens with Enter', async ({ page, appURL }) => {
@@ -397,7 +400,7 @@ test('files from the keyboard: Cmd/Ctrl+O imports, Shift+Cmd/Ctrl+S exports the 
   let dl = page.waitForEvent('download');
   await page.keyboard.press('ControlOrMeta+Shift+KeyS');
   expect((await dl).suggestedFilename()).toBe('Untitled 1.txt');
-  await expect(page.locator('#btn-export-all')).toHaveAttribute('title', new RegExp(`\\(${mac ? '⌥⌘S' : 'Alt\\+Shift\\+S'}\\)\\nLast full export: never$`));
+  await expect(page.locator('#btn-export-all')).toHaveAttribute('title', new RegExp(`^${mac ? '⌥⌘S' : 'Alt\\+Shift\\+S'} · .*\\nLast full export: never$`));
   dl = page.waitForEvent('download');
   await page.keyboard.press(mac ? 'Meta+Alt+KeyS' : 'Alt+Shift+KeyS');
   expect((await dl).suggestedFilename()).toMatch(/^modest-text_\d{8}_\d{6}\.zip$/);

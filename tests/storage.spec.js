@@ -113,7 +113,7 @@ test('14c. full storage: red banner and "Save failed"; Export All has the unsave
   // While full, the closed tab went to the in-memory stack only (not stored).
   const closed = (await stored(page))['modest-text:v1:closed'];
   expect(JSON.stringify(closed ?? []).includes('xxxxxxxxxx')).toBe(false);
-  await expect(page.locator('#btn-undo-close')).toHaveAttribute('title', 'Reopen “Big”');
+  await expect(page.locator('#btn-undo-close')).toHaveAttribute('title', / · Reopen “Big”$/);
   await clearFiller(page);
   await clickTab(page, 'Work');
 });

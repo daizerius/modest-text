@@ -4,7 +4,7 @@ import { EditorView, keymap, runScopeHandlers } from '@codemirror/view';
 import { history, undo, redo, standardKeymap, indentLess, indentMore, moveLineUp, moveLineDown, copyLineUp, copyLineDown, deleteLine, selectLine, insertBlankLine, simplifySelection } from '@codemirror/commands';
 import { indentUnit } from '@codemirror/language';
 import { cleanText } from './text.js';
-import { markdownExtensions, markdownLanguage, listEditing, linkPaste, inAnyCode } from './markdown.js';
+import { markdownExtensions, markdownLanguage, listEditing, linkPaste, linkSyntax, inAnyCode } from './markdown.js';
 import { typingHelpers } from './typing.js';
 import { renumberLists } from './lists.js';
 import { findExtension, findViewUpdate } from './find.js';
@@ -93,6 +93,7 @@ export const baseExt = [
     { key: 'Ctrl-y', run: redo, preventDefault: true },
   ])),
   markdownLanguage.extension, // Markdown is parsed in both modes (formats under the cursor, code detection)
+  linkSyntax, // and links' brackets, parentheses and addresses are coloured in both
   listEditing, // lists and quotes: Enter continues, Tab indents, Backspace removes a marker (both modes)
   Prec.high(keymap.of(formatKeymap)), // Markdown formatting shortcuts, in both modes
   // CodeMirror's standard keys (cursor, selection, deletion, Enter, select all) and, of its other default keys, only

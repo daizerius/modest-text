@@ -16,6 +16,12 @@ All notable changes to Modest Text are listed here, newest first. The format fol
 
 - In Markdown tabs, a link shows its brackets and address only while the cursor is in the link, not
   anywhere on its line, so the line no longer jumps as the cursor moves along it.
+- Tooltips start with the shortcut, in this system's key names and as this keyboard prints them
+  ("⌘B · Bold"); Help and Reopen closed tab now show theirs too.
+- The shortcut sheet opens with Help and the sheet itself, has a Tabs section of its own, lists
+  checking a task next to the task list, and ends with Files.
+- A link's brackets, parentheses and address each have a colour of their own, in plain-text and
+  Markdown tabs.
 - The page opens in the dark theme and turns light, with a quick fade, once it has started: a dark
   flash instead of a white one on slow starts. (#1)
 
@@ -26,6 +32,8 @@ All notable changes to Modest Text are listed here, newest first. The format fol
 
 ### Documentation
 
+- Help explains Erase all local data step by step: what it is for, Export All first, the button,
+  then the warning.
 - Help, in English and French, now warns that in Chrome, Edge and Brave every HTML file opened from
   disk shares the notes' storage and can read, change or erase them.
 

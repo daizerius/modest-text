@@ -31,7 +31,7 @@ test('2. three tabs survive a reload with content, names, order, modes, active t
   await expect(page.locator('#btn-md')).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
   await expect(page.locator('html')).toHaveAttribute('lang', 'fr');
-  await expect(page.locator('#btn-export')).toHaveAttribute('aria-label', /^Exporter/);
+  await expect(page.locator('#btn-export')).toHaveAttribute('aria-label', / · Exporter/);
   await expect(page.locator('#font-label')).toHaveText('Verdana'); // Markdown tab: Markdown text font
   await expect(page.locator('#size-select')).toHaveValue('24');
   expect(await page.locator('.cm-editor').evaluate((e) => getComputedStyle(e).fontSize)).toBe('24px');

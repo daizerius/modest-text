@@ -289,7 +289,7 @@ test('find (Cmd/Ctrl+F): matches counted and highlighted, next / previous with w
   await expect(page.locator('#find-count')).toContainText('of 600');
   await setLang(page, 'fr');
   await expect(page.locator('#find-count')).toContainText('sur 600');
-  await expect(page.locator('#find-next')).toHaveAttribute('title', /^Occurrence suivante \(/);
+  await expect(page.locator('#find-next')).toHaveAttribute('title', / · Occurrence suivante$/);
 });
 
 test('Cmd/Ctrl+G with no search running opens the find bar, and never reaches the browser', async ({ page, appURL }) => {

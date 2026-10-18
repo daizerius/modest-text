@@ -34,7 +34,7 @@ test('formatting bar: inline marks toggle on and off, blocks and lines, link, ru
   expect(faces.linkStroke).toBe(faces.text);
   // Usable in plain-text tabs too: the Markdown symbols are inserted, nothing is rendered.
   await expect(page.locator('.fmt-btn[data-fmt="bold"]')).toBeEnabled();
-  await expect(page.locator('.fmt-btn[data-fmt="bold"]')).toHaveAttribute('title', /^Bold \((⌘|Ctrl\+)B\)$/);
+  await expect(page.locator('.fmt-btn[data-fmt="bold"]')).toHaveAttribute('title', /^(⌘|Ctrl\+)B · Bold$/);
   await setDoc(page, 'plain words');
   await select(page, 6, 11);
   await fmt(page, 'bold');
@@ -136,8 +136,8 @@ test('formatting bar: inline marks toggle on and off, blocks and lines, link, ru
 
   // Tooltips are translated.
   await setLang(page, 'fr');
-  await expect(page.locator('.fmt-btn[data-fmt="bold"]')).toHaveAttribute('title', /^Gras \((⌘|Ctrl\+)B\)$/);
-  await expect(page.locator('.fmt-btn[data-fmt="highlight"]')).toHaveAttribute('title', /^Surligner \((⇧⌘|Ctrl\+Maj\+)H\)$/);
+  await expect(page.locator('.fmt-btn[data-fmt="bold"]')).toHaveAttribute('title', /^(⌘|Ctrl\+)B · Gras$/);
+  await expect(page.locator('.fmt-btn[data-fmt="highlight"]')).toHaveAttribute('title', /^(⇧⌘|Ctrl\+Maj\+)H · Surligner$/);
   await expect(page.locator('#formatbar')).toHaveAttribute('aria-label', 'Onglet actif\u00A0: mode, annulation et mise en forme');
 });
 
@@ -167,8 +167,8 @@ test('undo and redo buttons: per tab, in both modes, enabled only when there is 
   // Nothing to undo in a fresh tab.
   await expect(undoBtn).toBeDisabled();
   await expect(redoBtn).toBeDisabled();
-  await expect(undoBtn).toHaveAttribute('title', /^Undo \((⌘|Ctrl\+)Z\)$/);
-  await expect(redoBtn).toHaveAttribute('aria-label', process.platform === 'darwin' ? 'Redo (⇧⌘Z)' : 'Redo (Ctrl+Y)'); // each platform's own
+  await expect(undoBtn).toHaveAttribute('title', /^(⌘|Ctrl\+)Z · Undo$/);
+  await expect(redoBtn).toHaveAttribute('aria-label', process.platform === 'darwin' ? '⇧⌘Z · Redo' : 'Ctrl+Y · Redo'); // each platform's own
   // Plain-text tab: undo / redo work (like the formatting buttons).
   await focusEditorEnd(page);
   await page.keyboard.type('one');
@@ -216,8 +216,8 @@ test('undo and redo buttons: per tab, in both modes, enabled only when there is 
   // Translated.
   await clickTab(page, 'Untitled 1');
   await setLang(page, 'fr');
-  await expect(undoBtn).toHaveAttribute('title', /^Annuler \((⌘|Ctrl\+)Z\)$/);
-  await expect(redoBtn).toHaveAttribute('title', process.platform === 'darwin' ? 'Rétablir (⇧⌘Z)' : 'Rétablir (Ctrl+Y)');
+  await expect(undoBtn).toHaveAttribute('title', /^(⌘|Ctrl\+)Z · Annuler$/);
+  await expect(redoBtn).toHaveAttribute('title', process.platform === 'darwin' ? '⇧⌘Z · Rétablir' : 'Ctrl+Y · Rétablir');
 });
 
 test('Enter continues Markdown lists; an empty item ends the list or moves a nested item up; plain mode is untouched', async ({ page, appURL }) => {
@@ -419,12 +419,12 @@ for (const [platform, mac] of [['MacIntel', true], ['Win32', false]]) {
     // Tooltips name the keys in the platform's order.
     const tip = (f) => page.locator(`.fmt-btn[data-fmt="${f}"]`).getAttribute('title');
     const want = mac
-      ? { bold: 'Bold (⌘B)', italic: 'Italic (⌘I)', strike: 'Strikethrough (⇧⌘X)', code: 'Inline code (⌘E)', h1: 'Heading 1 (⌥⌘1)', ul: 'Bullet list (⇧⌘L)', ol: 'Numbered list (⇧⌘O)', tasklist: 'Task list (⇧⌘A)', quote: 'Quote (⇧⌘C)', codeblock: 'Code block (⇧⌘E)', hr: 'Horizontal rule (⇧⌘-)' }
-      : { bold: 'Bold (Ctrl+B)', italic: 'Italic (Ctrl+I)', strike: 'Strikethrough (Ctrl+Shift+X)', code: 'Inline code (Ctrl+E)', h1: 'Heading 1 (Ctrl+Shift+1)', ul: 'Bullet list (Ctrl+Shift+L)', ol: 'Numbered list (Ctrl+Shift+O)', tasklist: 'Task list (Ctrl+Shift+A)', quote: 'Quote (Ctrl+Shift+C)', codeblock: 'Code block (Ctrl+Shift+E)', hr: 'Horizontal rule (Ctrl+Shift+-)' };
+      ? { bold: '⌘B · Bold', italic: '⌘I · Italic', strike: '⇧⌘X · Strikethrough', code: '⌘E · Inline code', h1: '⌥⌘1 · Heading 1', ul: '⇧⌘L · Bullet list', ol: '⇧⌘O · Numbered list', tasklist: '⇧⌘A · Task list', quote: '⇧⌘C · Quote', codeblock: '⇧⌘E · Code block', hr: '⇧⌘- · Horizontal rule' }
+      : { bold: 'Ctrl+B · Bold', italic: 'Ctrl+I · Italic', strike: 'Ctrl+Shift+X · Strikethrough', code: 'Ctrl+E · Inline code', h1: 'Ctrl+Shift+1 · Heading 1', ul: 'Ctrl+Shift+L · Bullet list', ol: 'Ctrl+Shift+O · Numbered list', tasklist: 'Ctrl+Shift+A · Task list', quote: 'Ctrl+Shift+C · Quote', codeblock: 'Ctrl+Shift+E · Code block', hr: 'Ctrl+Shift+- · Horizontal rule' };
     for (const [f, w] of Object.entries(want)) expect(await tip(f)).toBe(w);
-    await expect(page.locator('#btn-redo')).toHaveAttribute('title', mac ? 'Redo (⇧⌘Z)' : 'Redo (Ctrl+Y)');
+    await expect(page.locator('#btn-redo')).toHaveAttribute('title', mac ? '⇧⌘Z · Redo' : 'Ctrl+Y · Redo');
     // Shift+Cmd/Ctrl+M switches the active tab between plain text and Markdown, from the text or from a bar.
-    await expect(page.locator('#btn-md')).toHaveAttribute('title', mac ? 'This tab is plain text: click for Markdown (⇧⌘M)' : 'This tab is plain text: click for Markdown (Ctrl+Shift+M)');
+    await expect(page.locator('#btn-md')).toHaveAttribute('title', mac ? '⇧⌘M · This tab is plain text: click for Markdown' : 'Ctrl+Shift+M · This tab is plain text: click for Markdown');
     await setDoc(page, 'x');
     await select(page, 1, 1);
     await press(`${M}+Shift+KeyM`);
@@ -434,9 +434,9 @@ for (const [platform, mac] of [['MacIntel', true], ['Win32', false]]) {
     await expect(page.locator('#btn-md')).toHaveAttribute('aria-pressed', 'false');
     expect(await docText(page)).toBe('x');
     await setLang(page, 'fr');
-    expect(await tip('strike')).toBe(mac ? 'Barré (⇧⌘X)' : 'Barré (Ctrl+Maj+X)');
-    expect(await tip('hr')).toBe(mac ? 'Ligne horizontale (⇧⌘-)' : 'Ligne horizontale (Ctrl+Maj+-)');
-    expect(await tip('tasklist')).toBe(mac ? 'Liste de tâches (⇧⌘A)' : 'Liste de tâches (Ctrl+Maj+A)');
+    expect(await tip('strike')).toBe(mac ? '⇧⌘X · Barré' : 'Ctrl+Maj+X · Barré');
+    expect(await tip('hr')).toBe(mac ? '⇧⌘- · Ligne horizontale' : 'Ctrl+Maj+- · Ligne horizontale');
+    expect(await tip('tasklist')).toBe(mac ? '⇧⌘A · Liste de tâches' : 'Ctrl+Maj+A · Liste de tâches');
   });
 }
 

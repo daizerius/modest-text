@@ -54,6 +54,8 @@ t.key = (name) => tr.key(name); // shortcut label in the platform's key names
 t.num = (n) => tr.num(n); // a number in the interface language (1,302 / 1 302)
 Object.defineProperty(t, 'lang', { get: () => tr.lang }); // 'en' | 'fr', for Intl formatting
 export function setT(fn) { tr = fn; }
+// A tooltip with its shortcut first, in this system's key names and as this keyboard prints them: "⌘B · Bold".
+export const keyTip = (label, ...keys) => `${keys.join(', ')} · ${label}`;
 
 export const activeTab = () => S.tabs.find((x) => x.id === S.activeId) || null;
 export const textOf = (tab) => tab.state.doc.toString();
