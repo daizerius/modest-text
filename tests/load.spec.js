@@ -78,7 +78,7 @@ test.describe('1. loading', () => {
     await expect(page.locator('#st-dot')).toBeHidden();
     await expect(page.locator('#st-counts')).toHaveText('');
     const text = await docText(page);
-    for (const s of ['only in this browser, on this computer', 'moving or renaming it', 'every HTML file opened from disk', 'can read, change or erase your notes', '~5 MB',
+    for (const s of ['only in this browser, on this computer', 'moving or renaming it', '~5 MB', 'To delete all your notes and reset the app: {action:erase}',
       'web-hosted copy', 'Private windows', 'clear data on exit', 'unzip it, then import all the files at once', 'Amber', 'Red', process.platform === 'darwin' ? '⌘S' : 'Ctrl+S']) {
       expect(text).toContain(s);
     }
@@ -89,6 +89,17 @@ test.describe('1. loading', () => {
       '`Save failed`', '`Read-only`', 'The dot `●` is green', '`Last full export: 2026-09-16 ∙ 14:03:22 EDT`', '## Formatting bar', process.platform === 'darwin' ? '`↩` on a list item' : '`Enter` on a list item']) {
       expect(text).toContain(s);
     }
+    // The shared-storage warning opens the page, right after the first paragraph, and the page is centred.
+    const top = await page.evaluate(() => {
+      const q = document.querySelector('.help-page blockquote');
+      const page = document.querySelector('.help-page').getBoundingClientRect(), view = document.getElementById('help-view').getBoundingClientRect();
+      return { text: q?.textContent, after: q?.previousElementSibling?.tagName + ' ' + q?.previousElementSibling?.previousElementSibling?.tagName,
+        left: page.left - view.left, right: view.right - page.right };
+    });
+    expect(top.text).toBe('Chrome, Edge and Brave: any HTML file you open from your disk can read, change or erase these notes. Open only HTML files you trust. Firefox, and a copy on a web address, are not affected.');
+    expect(top.after).toBe('P H1');
+    expect(top.left).toBeGreaterThan(50);
+    expect(Math.abs(top.left - top.right)).toBeLessThan(20); // the scrollbar, if any
     // UI glyphs are only ever mentioned inside code spans.
     const outsideCode = text.replace(/`[^`\n]*`/g, '');
     for (const g of ['💾', '📦', '📥', '↩️', '📄', '📝', '💡', '🌙', 'ℹ️', '×', '▾', '●', '←', '→', '❝', '🔗', '―']) expect(outsideCode, g).not.toContain(g);

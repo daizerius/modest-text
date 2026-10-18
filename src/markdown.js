@@ -365,9 +365,12 @@ export function livePreview(getT) {
   return plugin;
 }
 
-// A link's syntax in colours of its own, in both modes, so the parts tell apart at a glance: [ ] (and < >),
-// ( ), and the address. In a Markdown tab they show only with the cursor in the link (buildDecorations).
-function linkSyntaxDecorations(view) {
+// Colours, in both modes: headings, bold and italic, subtly; highlight (a tint, in plain-text tabs only:
+// Markdown tabs show the real one); and a link's syntax, so the parts tell apart at a glance: [ ] (and
+// < >), ( ), and the address. In a Markdown tab a link's syntax shows only with the cursor in the link
+// (buildDecorations).
+const COLOURS = { Emphasis: 'mt-c-em', StrongEmphasis: 'mt-c-strong', Highlight: 'mt-c-hl' };
+function syntaxColourDecorations(view) {
   const { doc } = view.state;
   const out = [];
   const tree = syntaxTree(view.state);
@@ -375,6 +378,8 @@ function linkSyntaxDecorations(view) {
     tree.iterate({
       from, to,
       enter: (node) => {
+        if (COLOURS[node.name]) { out.push(mark(COLOURS[node.name]).range(node.from, node.to)); return; }
+        if (/^(ATX|Setext)Heading\d$/.test(node.name)) { out.push(mark('mt-c-h').range(node.from, node.to)); return; }
         if (node.name !== 'Link' && node.name !== 'Autolink' && node.name !== 'Image') return;
         for (let c = node.node.firstChild; c; c = c.nextSibling) {
           if (c.name === 'URL') out.push(mark('mt-link-url').range(c.from, c.to));
@@ -385,10 +390,10 @@ function linkSyntaxDecorations(view) {
   }
   return Decoration.set(out, true);
 }
-export const linkSyntax = ViewPlugin.fromClass(class {
-  constructor(view) { this.decorations = linkSyntaxDecorations(view); }
+export const syntaxColours = ViewPlugin.fromClass(class {
+  constructor(view) { this.decorations = syntaxColourDecorations(view); }
   update(u) {
-    if (u.docChanged || u.viewportChanged || syntaxTree(u.startState) !== syntaxTree(u.state)) this.decorations = linkSyntaxDecorations(u.view);
+    if (u.docChanged || u.viewportChanged || syntaxTree(u.startState) !== syntaxTree(u.state)) this.decorations = syntaxColourDecorations(u.view);
   }
 }, { decorations: (v) => v.decorations });
 

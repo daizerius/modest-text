@@ -102,7 +102,17 @@ function build() {
     for (const [name, alts] of rows) {
       const tr = document.createElement('tr');
       const d = document.createElement('td');
-      d.textContent = t(name);
+      // A long label breaks between its clauses (after ": " and "; "), each kept whole while it fits.
+      // `…` in a label is a key, shown as the key column shows it.
+      t(name).split(/(?<=[:;]) /).forEach((clause, n) => {
+        if (n) d.append(' '); // between the clauses: an inline block drops a space at its end
+        const c = document.createElement('span');
+        c.className = 'ks-clause';
+        clause.split('`').forEach((s, i) => {
+          if (i % 2) { const kbd = document.createElement('kbd'); kbd.textContent = s; c.append(kbd); } else if (s) c.append(s);
+        });
+        d.append(c);
+      });
       tr.append(keyCell(alts), d);
       table.append(tr);
     }

@@ -211,6 +211,9 @@ test('punctuation shortcuts are named as this keyboard prints them, and fall bac
   };
 
   let r = await withLayout(LAYOUTS.us);
+  // Keys named in a label are keys too.
+  expect(await page.evaluate(() => [...[...document.querySelectorAll('#keys-body td')].find((td) => td.textContent.startsWith('On a tab: lift it'))
+    .querySelectorAll('kbd')].map((k) => k.textContent))).toEqual(['←', '→', 'V']);
   expect(r['Indent / outdent the line']).toMatch(/\]/);
   expect(r['Indent / outdent the line']).toMatch(/\[/);
   expect(r['Show or hide this list of keyboard shortcuts']).toMatch(/\/$/);
