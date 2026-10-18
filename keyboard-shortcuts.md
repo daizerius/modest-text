@@ -74,7 +74,7 @@ A key press tells the page three things:
 | Bold, italic, link | `⌘B`, `⌘I`, `⌘K` | `Ctrl+B`, `Ctrl+I`, `Ctrl+K` | Used everywhere |
 | Strikethrough | `⇧⌘X` | `Ctrl+Shift+X` | As in Typora and Obsidian |
 | Highlight | `⇧⌘H` | `Ctrl+Shift+H` | `⌘H` hides the app on a Mac |
-| Inline code, code block | `⌘E`, `⇧⌘E` | `Ctrl+E`, `Ctrl+Shift+E` | A pair: `Shift` makes it a block |
+| Inline code, code block | `⌘E`, `⇧⌘E` | `Ctrl+E`, `Ctrl+Shift+E` | As in Signal, Notion and GitHub; a pair: `Shift` makes it a block |
 | Headings 1 to 6 | `⌥⌘1` to `⌥⌘6` | `Ctrl+Shift+1` to `Ctrl+Shift+6` | As in Google Docs (Mac); `Ctrl+Alt` is AltGr on Windows; by position |
 | Bullet, numbered, task list | `⇧⌘L`, `⇧⌘O`, `⇧⌘A`, or `⇧⌘8`, `⇧⌘7`, `⇧⌘9` | `Ctrl+Shift+` the same letters and digits | The digits as in Word and Google Docs, by position |
 | Quote | `⇧⌘C` | `Ctrl+Shift+C` | |
