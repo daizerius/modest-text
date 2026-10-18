@@ -95,6 +95,13 @@ Some are deliberate, some come with the browser. Know them before you rely on th
   storage (`localStorage`); the app itself is a 225 KB file and takes none of it. Opened from disk in
   Chrome, the 5 MB are shared with every other local HTML file you open. The app warns at 4 MB (amber)
   and when storage is full (red).
+- **Your notes are not private from other pages that share the browser's storage.** Opened from disk
+  in Chrome, Edge or Brave, every local HTML file shares one storage area, so any of them could read,
+  change or erase your notes. Firefox keeps each file apart. The app never touches other pages' data,
+  but it cannot stop them from touching its own, and encrypting the notes would not help, because the
+  key would be as reachable as the notes. Only open local HTML files you trust, or serve the app from
+  its own address (for example a local web server), where the storage is yours alone. Keep Export All
+  current: it is also the answer to a note erased by another page.
 - **Imports up to 1 MB per file**, `.txt` and `.md` only. Other encodings are converted to UTF-8.
 - **No printing.** The editor lays out only the visible part of a note, so a print would be a
   fragment; `⌘P` / `Ctrl+P` explains this and suggests exporting and printing from another app.

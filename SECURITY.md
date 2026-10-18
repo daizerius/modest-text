@@ -4,6 +4,11 @@ Modest Text is one HTML file that runs in your browser. It makes no network requ
 Content-Security-Policy in the page forbids them, and only the page's own two scripts (identified by
 their hash) may run. Your notes stay in the browser's storage, on your computer.
 
+The protection runs one way: Modest Text cannot read other pages' storage, but a page that shares its
+origin can read Modest Text's. Opened from disk in Chrome, Edge or Brave, all local HTML files are one
+origin, so a local file you open could read or erase your notes. This is a browser rule, not a flaw the
+app can fix; see [Limits](ABOUT.md#limits). Serving the app from its own address avoids it.
+
 ## Reporting a vulnerability
 
 Please report it **privately**, not in a public issue: use

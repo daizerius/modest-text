@@ -4,6 +4,14 @@ All notable changes to Modest Text are listed here, newest first. The format fol
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Documentation
+
+- ABOUT and SECURITY now say that notes are not private from other pages sharing the browser's
+  storage: opened from disk in Chrome, Edge or Brave, any local HTML file can read, change or erase
+  them. Firefox keeps each file apart. Serving the app from its own address avoids it.
+
 ## [1.0.0] — 2026-09-29
 
 The first public release: a text and Markdown editor in one HTML file, with nothing to install and
