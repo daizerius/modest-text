@@ -132,6 +132,9 @@ export function onMessage(v) {
   try { m = JSON.parse(v); } catch { return; }
   if (!m || m.from === windowId) return;
   if (m.type === 'takeover' && S.role === 'editor') handOver(m.from);
+  // Another window erased everything: start afresh too. Until the page is gone it writes nothing (as in
+  // eraseAll), or it would save its copy of the notes again as it took over editing.
+  if (m.type === 'erased') { S.role = 'erased'; location.reload(); }
 }
 
 export function handOver(to) {
@@ -177,7 +180,7 @@ $('btn-edit-here').addEventListener('click', requestTakeover);
 export function becomeEditor(reload) {
   // Once only: a lease check or lock request still pending from the read-only state must not reload the tabs
   // again (that would drop what was typed since taking over).
-  if (S.role === 'editor') return;
+  if (S.role === 'editor' || S.role === 'erased') return;
   clearTimeout(takeoverTimer);
   clearTimeout(liveTimer); // a live sync queued while read-only must not overwrite new edits
   const wasPending = S.role === 'pending';

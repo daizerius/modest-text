@@ -6,7 +6,28 @@ All notable changes to Modest Text are listed here, newest first. The format fol
 
 ## [Unreleased]
 
+### Added
+
+- **Erase all local data**, at the end of Help's "Where are my notes?": after a warning, which offers
+  Export All first, it deletes every note, closed tab and setting the app keeps in this browser, in
+  every open window of it. Only the editing window can do it. (#2)
+
+### Changed
+
+- In Markdown tabs, a link shows its brackets and address only while the cursor is in the link, not
+  anywhere on its line, so the line no longer jumps as the cursor moves along it.
+- The page opens in the dark theme and turns light, with a quick fade, once it has started: a dark
+  flash instead of a white one on slow starts. (#1)
+
+### Fixed
+
+- Pasting an address into the `https://` placeholder of `⌘K` / `Ctrl+K` no longer nests a second
+  link; the address goes in trimmed and the cursor moves past the link. (#15)
+
 ### Documentation
+
+- Help, in English and French, now warns that in Chrome, Edge and Brave every HTML file opened from
+  disk shares the notes' storage and can read, change or erase them.
 
 - ABOUT and SECURITY now say that notes are not private from other pages sharing the browser's
   storage: opened from disk in Chrome, Edge or Brave, any local HTML file can read, change or erase

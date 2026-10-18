@@ -91,6 +91,26 @@ test('pasting a web address over selected text makes a Markdown link, in both mo
   expect(await docText(page)).toBe(`see [site](${url})`);
 });
 
+test('an address pasted into the link placeholder of Cmd/Ctrl+K replaces it, trimmed, in both modes', async ({ page, appURL }) => {
+  await openFresh(page, appURL);
+  const url = 'https://example.com/a?b=1';
+  for (const md of [true, false]) {
+    if (md !== ((await page.getAttribute('#btn-md', 'aria-pressed')) === 'true')) await page.click('#btn-md');
+    for (const copied of [url, `  ${url}\n`]) {
+      await writeClipboard(page, { plain: copied });
+      await setDoc(page, 'see site now');
+      await selectRange(page, 4, 8);
+      await page.keyboard.press('ControlOrMeta+k');
+      expect(await docText(page)).toBe('see [site](https://) now');
+      await page.keyboard.press('ControlOrMeta+v');
+      expect(await docText(page), `${md} ${JSON.stringify(copied)}`).toBe(`see [site](${url}) now`);
+      expect(await cursorPos(page)).toBe(`see [site](${url})`.length);
+      await page.keyboard.press('ControlOrMeta+z'); // one step back to the placeholder
+      expect(await docText(page)).toBe('see [site](https://) now');
+    }
+  }
+});
+
 test('the formats under the cursor show as pressed buttons, in Markdown and plain-text tabs', async ({ page, appURL }) => {
   await openFresh(page, appURL);
   const doc = '# Title\n\nsome **bold** and *it* ~~st~~ ==hl== `code`\n\n- item\n1. one\n> quote **b**\n\n## Two';

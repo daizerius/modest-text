@@ -1,6 +1,6 @@
 // Typora-style live preview for CodeMirror 6.
 // The Markdown source is never rewritten: rendering is done with decorations
-// only, and raw syntax is revealed on the line / block holding the cursor.
+// only, and raw syntax is revealed on the line / block holding the cursor (a link's, only in the link).
 // Document text is only ever inserted as text (textContent), never as HTML.
 
 import { Prec } from '@codemirror/state';
@@ -210,7 +210,9 @@ function buildDecorations(view, t) {
             if (!safe || marks.length < 2) return; // unsafe or reference link: leave raw, inert
             const textFrom = marks[0].to, textTo = marks[1].from;
             add(textFrom, textTo, Decoration.mark({ class: 'mt-link', attributes: { title: t('linkTip', { url: safe }) } }));
-            if (!linesActive(nf, nt)) {
+            // Only with the cursor in the link, not anywhere on its line: an address is long, so a line whose links
+            // opened whenever the cursor came onto it jumped about as the cursor went in and out of it.
+            if (!touches(nf, nt)) {
               add(marks[0].from, marks[0].to, hide);
               add(marks[1].from, nt, hide);
             }
@@ -222,7 +224,7 @@ function buildDecorations(view, t) {
             const safe = u && safeUrl(doc.sliceString(u.from, u.to));
             if (!safe) return false;
             add(u.from, u.to, Decoration.mark({ class: 'mt-link', attributes: { title: t('linkTip', { url: safe }) } }));
-            if (!linesActive(nf, nt)) {
+            if (!touches(nf, nt)) {
               add(nf, u.from, hide);
               add(u.to, nt, hide);
             }
@@ -411,8 +413,14 @@ const PASTE_URL = /^(https?:\/\/|mailto:)[^\s<>()[\]]+$/i;
 export function linkPaste(state, text) {
   const url = text.trim();
   const r = state.selection.main;
-  if (state.selection.ranges.length > 1 || r.empty || !PASTE_URL.test(url)) return null;
+  if (state.selection.ranges.length > 1 || !PASTE_URL.test(url)) return null;
   const sel = state.sliceDoc(r.from, r.to);
+  // Into a link's address, such as the https:// that Cmd/Ctrl+K selects: the address alone, trimmed, then the
+  // cursor after the link. Read from the text around it, not the tree, so plain-text tabs get it too.
+  if (r.from >= 2 && state.sliceDoc(r.from - 2, r.from) === '](' && state.sliceDoc(r.to, r.to + 1) === ')' && !/[\s()]/.test(sel) && !inAnyCode(state, r.from)) {
+    return { changes: { from: r.from, to: r.to, insert: url }, selection: { anchor: r.from + url.length + 1 } };
+  }
+  if (r.empty) return null;
   if (!sel.trim() || /[\n[\]]/.test(sel) || PASTE_URL.test(sel.trim()) || inAnyCode(state, r.from)) return null;
   const insert = `[${sel}](${url})`;
   return { changes: { from: r.from, to: r.to, insert }, selection: { anchor: r.from + insert.length } };

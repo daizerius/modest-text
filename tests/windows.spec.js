@@ -1,6 +1,6 @@
 // Done when #13: one editing window; read-only second window; handover; conflict tab.
 // Every test runs twice: through the Web Lock path and through the forced lease fallback.
-import { test, expect, openFresh, openApp, addTab, docText, setDoc, focusEditorEnd, saveNow, tabNames, storedTabs, clickTab, status } from './helpers.js';
+import { test, expect, openFresh, openApp, addTab, docText, setDoc, focusEditorEnd, saveNow, tabNames, storedTabs, clickTab, status, stored } from './helpers.js';
 
 for (const path of ['weblock', 'lease']) {
   test.describe(`13. multiple windows — ${path} path`, () => {
@@ -136,6 +136,43 @@ for (const path of ['weblock', 'lease']) {
       const saved = await storedTabs(page);
       expect(saved.map((t) => [t.name, t.content])).toEqual([['Untitled 1', 'theirs'], ['Untitled 1 (conflict)', 'base mine']]);
       await expect(page.locator('.toast-text').last()).toContainText('(conflict)');
+    });
+
+    test('Erase all local data, from Help, asks first, then empties every window', async ({ page, context, appURL }) => {
+      await openFresh(page, appURL);
+      await setDoc(page, 'a note');
+      await saveNow(page);
+      await page.evaluate(() => localStorage.setItem('other-page', 'kept')); // another page's data is not ours
+      const b = await context.newPage();
+      await openApp(b, appURL, { role: 'readonly' });
+      // A read-only window says why it cannot, and asks nothing.
+      await b.click('#btn-help');
+      await b.locator('[data-action="erase"]').click();
+      await expect(b.locator('#toasts')).toContainText('Another window is editing');
+      await expect(b.locator('#erase-dialog')).toBeHidden();
+      // The editing window warns, with Cancel focused; Cancel keeps everything.
+      await page.click('#btn-help');
+      const erase = page.locator('[data-action="erase"]');
+      await expect(erase).toHaveText('Erase all local data…');
+      await erase.click();
+      await expect(page.locator('#erase-dialog')).toBeVisible();
+      await expect(page.locator('#erase-cancel')).toBeFocused();
+      await page.click('#erase-cancel');
+      await expect(page.locator('#erase-dialog')).toBeHidden();
+      expect(Object.keys(await stored(page)).some((k) => k.startsWith('modest-text:v1:tab:'))).toBe(true);
+      // Erase: both windows start afresh, on Help, without a "Leave site?" box, and other pages' data stays.
+      const boxes = [];
+      page.on('dialog', (d) => boxes.push(d.type()));
+      await erase.click();
+      await Promise.all([page.waitForEvent('load'), b.waitForEvent('load'), page.click('#erase-ok')]);
+      for (const p of [page, b]) {
+        await expect(p.locator('html[data-ready="1"]')).toHaveCount(1);
+        await expect(p.locator('.tab .tab-name')).toHaveText(['Help']);
+      }
+      expect(boxes).toEqual([]);
+      const keys = await page.evaluate(() => Object.keys(localStorage));
+      expect(keys.filter((k) => k.startsWith('modest-text:v1:tab:') || k === 'modest-text:v1:settings')).toEqual([]);
+      expect(keys).toContain('other-page');
     });
   });
 }

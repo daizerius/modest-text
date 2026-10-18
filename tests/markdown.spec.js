@@ -65,10 +65,12 @@ test('11. Markdown mode renders every supported element in serif and reveals syn
   expect(await page.locator('.cm-content a, .cm-content img:not(.cm-widgetBuffer), .cm-content script, .cm-content h1, .cm-content iframe').count()).toBe(0);
   expect(await page.locator('.cm-content img[src]').count()).toBe(0);
 
-  // Cursor on the paragraph: its syntax is revealed, and only there.
+  // Cursor on the paragraph: its syntax is revealed, and only there; a link's, only with the cursor in the link.
   await setCursor(page, MD.indexOf('Para with') + 3);
-  expect(await lineText(page, 3)).toBe('Para with **bold**, *italic*, ~~strike~~, `code` and [a link](https://example.com/x).');
+  expect(await lineText(page, 3)).toBe('Para with **bold**, *italic*, ~~strike~~, `code` and a link.');
   expect(await lineText(page, 0)).toBe('Heading 1');
+  await setCursor(page, MD.indexOf('a link') + 2);
+  expect(await lineText(page, 3)).toBe('Para with **bold**, *italic*, ~~strike~~, `code` and [a link](https://example.com/x).');
   // On a heading.
   await setCursor(page, 2);
   expect(await lineText(page, 0)).toBe('# Heading 1');

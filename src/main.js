@@ -10,7 +10,7 @@ import { allSaved, flushDirty, loadClosed, loadLastExport, loadScroll, loadSetti
 import { closeTab, cycleTab, modal, openHelp, reopenClosed, restoreScroll, toggleMode } from './tabs.js';
 import { exportActive, exportAll, fileInput } from './io.js';
 import { flash, toast } from './statusbar.js';
-import { applyFonts, applyLang, applyTheme, fitTopbar, renderAll, toggleBars } from './toolbar.js';
+import { applyFonts, applyLang, applyTheme, fadeTheme, fitTopbar, mql, renderAll, toggleBars } from './toolbar.js';
 import { startLocking } from './windows.js';
 import { openFind, findGo, findOpen } from './find.js';
 import { toggleKeySheet } from './keysheet.js';
@@ -28,6 +28,7 @@ import './io.js';
 import './windows.js';
 import './find.js';
 import './keysheet.js';
+import './erase.js';
 
 let storageOk = true;
 
@@ -191,7 +192,6 @@ function init() {
   S.installed = detectFonts();
   S.lang = settings.lang || (/^fr\b/i.test(navigator.language || '') ? 'fr' : 'en');
   setT(makeT(S.lang, KEYS));
-  applyTheme();
 
   const ws = loadWorkspace();
   S.indexReadFailed = ws.indexError;
@@ -244,7 +244,10 @@ function init() {
   // by itself, Firefox asks the user once, Safari applies its own rules (its 7-day cap on sites not
   // opened is a separate matter: Help tells Safari users to open the app weekly and keep a backup).
   try { navigator.storage?.persisted?.().then((kept) => kept || navigator.storage.persist()).catch(() => {}); } catch { /* not offered */ }
-  html.dataset.ready = '1';
+  // The page opens dark (index.html) and turns light, if it should, only now that it is built: on a slow start
+  // a dark flash, rather than a white one in a dark room.
+  const light = (settings.theme || (mql.matches ? 'dark' : 'light')) === 'light';
+  (light ? fadeTheme(applyTheme) : Promise.resolve(applyTheme())).then(() => { html.dataset.ready = '1'; });
 }
 
 init();

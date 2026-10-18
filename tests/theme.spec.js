@@ -295,6 +295,16 @@ test('default theme follows the OS until the user chooses; the button shows the 
   }
 });
 
+test('before the app has started, the page is dark, even on a light system: no white flash', async ({ browser, appURL }) => {
+  // With scripts off, what shows is what every opening shows until the bundle has unpacked and started.
+  const ctx = await browser.newContext({ colorScheme: 'light', javaScriptEnabled: false });
+  const p = await ctx.newPage();
+  await p.goto(appURL);
+  await expect(p.locator('html')).toHaveAttribute('data-theme', 'dark');
+  expect(await p.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe('rgb(46, 52, 64)');
+  await ctx.close();
+});
+
 // Narrow windows: the workspace buttons stay beside the title and font / size / wrap / reading width move,
 // together, to a row below; in the bar under the tabs, groups never break, the break comes before the headings,
 // and no hairline is left at the start of a row.

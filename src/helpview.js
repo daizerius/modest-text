@@ -45,9 +45,23 @@ function ui(name) {
   return box;
 }
 
+// {action:name}: a button that runs a command (data-action; its module listens for the click).
+function action(name) {
+  const b = el('button', 'btn help-action');
+  b.type = 'button';
+  b.dataset.action = name;
+  b.textContent = t(name + 'Btn');
+  b.title = b.textContent;
+  b.setAttribute('aria-label', b.textContent);
+  return b;
+}
+
 function text(parent, s) {
-  const parts = s.replace(/\s*\n\s*/g, ' ').split(/\{ui:([\w-]+)\}/);
-  parts.forEach((p, i) => { if (i % 2) parent.append(ui(p)); else if (p) parent.append(p); });
+  const parts = s.replace(/\s*\n\s*/g, ' ').split(/\{(ui|action):([\w-]+)\}/);
+  for (let i = 0; i < parts.length; i += 3) {
+    if (parts[i]) parent.append(parts[i]);
+    if (i + 2 < parts.length) parent.append(parts[i + 1] === 'ui' ? ui(parts[i + 2]) : action(parts[i + 2]));
+  }
 }
 
 function build(node, doc, parent) {

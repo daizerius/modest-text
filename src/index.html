@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="__CSP__">
@@ -139,6 +139,15 @@
   <h2 id="keys-title" data-i18n="keysTitle">Keyboard shortcuts</h2>
   <div id="keys-body" class="keys-body"></div>
   <div class="modal-buttons"><button type="button" id="keys-ok" class="btn btn-primary" data-i18n="keysClose" data-i18n-tip="keysClose" autofocus>Close</button></div>
+</dialog>
+<dialog id="erase-dialog" class="print-dialog" aria-labelledby="erase-title">
+  <h2 id="erase-title" data-i18n="eraseTitle">Erase all local data?</h2>
+  <p data-i18n="eraseText"></p>
+  <div class="modal-buttons">
+    <button type="button" id="erase-export" class="btn" data-i18n="eraseExportFirst" data-i18n-tip="eraseExportFirst">Export All first</button>
+    <button type="button" id="erase-cancel" class="btn" data-i18n="cancel" data-i18n-tip="cancel" autofocus>Cancel</button>
+    <button type="button" id="erase-ok" class="btn btn-danger" data-i18n="eraseOk" data-i18n-tip="eraseOk">Erase everything</button>
+  </div>
 </dialog>
 <div id="drop-overlay" class="drop-overlay" hidden><span data-i18n="dropHint">Drop .txt or .md files to import them</span></div>
 <script>__SCRIPT__</script>

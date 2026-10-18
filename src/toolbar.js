@@ -382,16 +382,20 @@ export function applyTheme() {
   updateToolbar();
 }
 mql.addEventListener?.('change', () => { if (!settings.theme) applyTheme(); });
-$('btn-theme').addEventListener('click', () => {
-  const next = html.dataset.theme === 'dark' ? 'light' : 'dark';
-  const apply = () => { settings.theme = next; writeSettings(); applyTheme(); };
+// Runs apply, which changes the theme, as a quick cross-fade between the two (see ::view-transition-* in CSS).
+// Resolves once the theme is applied.
+export function fadeTheme(apply) {
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (typeof document.startViewTransition !== 'function' || reduce) { apply(); return; }
-  html.dataset.themeFading = '1'; // cross-fade between the two themes (see ::view-transition-* in CSS)
+  if (typeof document.startViewTransition !== 'function' || reduce) { apply(); return Promise.resolve(); }
+  html.dataset.themeFading = '1';
   const vt = document.startViewTransition(apply);
   vt.ready.catch(() => {});
-  vt.updateCallbackDone.catch(() => {});
   vt.finished.catch(() => {}).then(() => { delete html.dataset.themeFading; });
+  return vt.updateCallbackDone.catch(() => {});
+}
+$('btn-theme').addEventListener('click', () => {
+  const next = html.dataset.theme === 'dark' ? 'light' : 'dark';
+  fadeTheme(() => { settings.theme = next; writeSettings(); applyTheme(); });
 });
 
 // Import, Export and Export All: their keys, and when the last full export ran.
