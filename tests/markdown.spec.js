@@ -266,3 +266,25 @@ test('headings, bold and italic are subtly coloured in both modes; highlight is 
     }
   }
 });
+
+// #11: bare addresses are links in Markdown tabs only; www. opens as https://, an e-mail address as mailto:.
+test('bare addresses are links in Markdown tabs (Cmd/Ctrl+click opens them), and not in plain-text tabs', async ({ page, appURL }) => {
+  await openFresh(page, appURL); // a plain-text tab
+  await page.evaluate(() => { window.__opened = []; HTMLAnchorElement.prototype.click = function () { window.__opened.push(this.href); }; });
+  const doc = 'See https://example.com/a?b=1. Or www.example.org, or write to name@example.com; xmpp:x@y.z stays text.';
+  await setDoc(page, doc);
+  await setCursor(page, 0);
+  // Plain text: no link, no link colour, and Cmd/Ctrl+click only places the cursor.
+  expect(await page.locator('.mt-link').count()).toBe(0);
+  expect(await page.locator('.mt-link-url').count()).toBe(0);
+  await page.locator('.cm-line').click({ modifiers: ['ControlOrMeta'], position: { x: 60, y: 5 } });
+  expect(await page.evaluate(() => window.__opened)).toEqual([]);
+  // Markdown: three links, ending before the trailing punctuation.
+  await page.click('#btn-md');
+  await setCursor(page, doc.length);
+  await expect(page.locator('.mt-link')).toHaveText(['https://example.com/a?b=1', 'www.example.org', 'name@example.com']);
+  await expect(page.locator('.mt-link').nth(1)).toHaveAttribute('title', /https:\/\/www\.example\.org/);
+  for (const i of [0, 1, 2]) await page.locator('.mt-link').nth(i).click({ modifiers: ['ControlOrMeta'], position: { x: 3, y: 5 } });
+  expect(await page.evaluate(() => window.__opened)).toEqual(['https://example.com/a?b=1', 'https://www.example.org/', 'mailto:name@example.com']);
+  expect(await docText(page)).toBe(doc); // the text itself is never rewritten
+});

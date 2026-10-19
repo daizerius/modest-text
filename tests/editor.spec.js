@@ -397,3 +397,31 @@ test('narrow window: the status bar drops the document counts first during a sel
   await settle();
   expect((await read()).counts).toMatch(/lignes · .* mots · .* caractères$/);
 });
+
+// #3: the app's name and version, centred in the status bar with 2ch clear on each side; the first thing to go
+// when the bar runs short, whole, before any count or date is shortened.
+test('the status bar shows "Modest Text" and the version, centred; it goes first, entirely, when the bar is short', async ({ page, appURL }) => {
+  const { version } = JSON.parse((await import('node:fs')).readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
+  await page.setViewportSize({ width: 1200, height: 700 });
+  await openFresh(page, appURL);
+  const app = page.locator('#st-app');
+  await expect(app).toHaveText(`Modest Text ${version}`);
+  const geo = () => page.evaluate(() => {
+    const bar = document.getElementById('statusbar').getBoundingClientRect(), a = document.getElementById('st-app').getBoundingClientRect();
+    const counts = document.getElementById('st-counts').getBoundingClientRect(), right = document.querySelector('.st-right').getBoundingClientRect();
+    const ch = parseFloat(getComputedStyle(document.getElementById('st-app')).fontSize) * 0.5;
+    return { offCentre: Math.abs((a.left + a.right) / 2 - (bar.left + bar.right) / 2), clearLeft: a.left - counts.right, clearRight: right.left - a.right, ch };
+  });
+  const g = await geo();
+  expect(g.offCentre).toBeLessThan(1.5);
+  expect(g.clearLeft).toBeGreaterThanOrEqual(0); // its own 2ch padding is the clear space
+  expect(g.clearRight).toBeGreaterThanOrEqual(0);
+  // Narrow, with long counts: it is gone, whole; the counts it gave way to read in full ("characters").
+  await setDoc(page, 'word '.repeat(30000));
+  await page.setViewportSize({ width: 600, height: 700 });
+  await expect(app).toBeHidden();
+  await expect(page.locator('#st-counts')).toContainText('characters');
+  // Wide again: back.
+  await page.setViewportSize({ width: 1200, height: 700 });
+  await expect(app).toBeVisible();
+});

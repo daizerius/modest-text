@@ -65,7 +65,7 @@ function collect(page) {
   });
 }
 // Language-neutral strings that legitimately stay the same.
-const NEUTRAL = /^(Modest Text|FR|EN|💾|📦|📥|📄|📝|💡|ℹ️|B|I|S|ab|<\/>|H1|H2|H3|•|1\.|❝|\{ \}|🔗|―|\+|×|↩️|🌙|·|\||—|▾|●|Menlo|Consolas|Courier New|Cascadia Mono|Georgia|Times New Roman|Arial|Verdana|\d{2}-\d{2}-\d{4} ∙ \d{2}:\d{2}:\d{2}|Untitled 1|Notes)$/;
+const NEUTRAL = /^(Modest Text \S+|Modest Text|FR|EN|💾|📦|📥|📄|📝|💡|ℹ️|B|I|S|ab|<\/>|H1|H2|H3|•|1\.|❝|\{ \}|🔗|―|\+|×|↩️|🌙|·|\||—|▾|●|Menlo|Consolas|Courier New|Cascadia Mono|Georgia|Times New Roman|Arial|Verdana|\d{2}-\d{2}-\d{4} ∙ \d{2}:\d{2}:\d{2}|Untitled 1|Notes)$/;
 
 test('15b. every UI string — buttons, tooltips, dropdowns, modal, banners, status bar, messages, Help — switches FR/EN', async ({ page, context, appURL }) => {
   await openFresh(page, appURL);

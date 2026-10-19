@@ -2,6 +2,7 @@
 import { countText, formatStamp } from './text.js';
 import { WARN_CHARS, store } from './storage.js';
 import { $, S, activeTab, html, t, textOf } from './state.js';
+import { APP_VERSION } from './i18n.js';
 import { updateTabMarkers } from './tabs.js';
 
 // ---------------------------------------------------------------- UI: toasts
@@ -81,8 +82,21 @@ const STEPS_SEL = [[0, 0, false], ...STEPS_DOC.map(([c, st]) => [c, st, true]), 
 const statusEl = $('statusbar');
 const stLeft = statusEl.querySelector('.st-left');
 const cut = (el) => el.scrollWidth > el.clientWidth + 1;
+// The app's name and version, centred in the bar (out of the flow, so it takes no room from the counts or the
+// save state). Its padding is the 2ch kept clear on each side; when either side reaches into that, it goes,
+// whole and first, before anything else is shortened.
+const app = $('st-app');
+app.textContent = `Modest Text ${APP_VERSION}`;
+const stRight = statusEl.querySelector('.st-right');
+function appCrowded() {
+  const a = app.getBoundingClientRect();
+  const shown = [...stLeft.children].filter((e) => !e.hidden);
+  const leftEnd = shown.length ? shown[shown.length - 1].getBoundingClientRect().right : stLeft.getBoundingClientRect().left;
+  return cut(stLeft) || a.left < leftEnd || a.right > stRight.getBoundingClientRect().left;
+}
 export function fitStatus() {
   const sel = $('st-sel'), counts = $('st-counts');
+  app.hidden = false;
   for (const [level, stamp, selOnly = false, selShort = false] of selCounts ? STEPS_SEL : STEPS_DOC) {
     counts.hidden = selOnly;
     stLeft.classList.toggle('sel-only', selOnly);
@@ -94,6 +108,7 @@ export function fitStatus() {
     // "chars." at most, as before), and the tooltip keeps the whole wording.
     $('st-export-label').textContent = stamp >= 1 ? '' : t('stExport');
     $('st-time').textContent = S.lastExport ? formatStamp(new Date(S.lastExport), ' ∙ ', stamp) : t('stNever');
+    if (!app.hidden && appCrowded()) app.hidden = true;
     if (!cut(statusEl) && !(!selOnly && cut(counts)) && !(selCounts && cut(sel))) break;
   }
 }
@@ -113,13 +128,13 @@ export function updateStatus(withCounts) {
   if (!tab.help && S.role !== 'editor' && tab.dirty) dot = 'red';
   $('st-status').textContent = st;
   const stamp = tab.savedAt ? formatStamp(new Date(tab.savedAt)) : '—'; // the note's own save: in the dot's tooltip
-  fitStatus();
   const exp = S.lastExport ? t('lastExport', { when: formatStamp(new Date(S.lastExport)) }) : t('lastExportNever');
   $('st-export').title = exp; // the whole wording, whatever the width left of the label
   $('st-export').setAttribute('aria-label', exp);
   const dotEl = $('st-dot');
   dotEl.className = `dot dot-${dot}` + (!tab.help && tab.failed ? ' dot-x' : '');
   dotEl.hidden = $('st-sep').hidden = $('st-export').hidden = !!tab.help;
+  fitStatus(); // with the right side as it now is
   const state = dot === 'red' ? t('dotUnsaved') : tab.savedAt ? t('dotSaved') : t('dotNever');
   const label = t('dotLabel', { state, when: stamp });
   dotEl.title = label;
@@ -132,6 +147,7 @@ export function updateAmber() {
   const usage = store.usage();
   const amber = usage > WARN_CHARS || S.probeFailed;
   const el = $('st-storage');
+  const was = el.hidden;
   el.hidden = !amber;
   const mb = new Intl.NumberFormat(S.lang === 'fr' ? 'fr-FR' : 'en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(usage / 1048576);
   el.textContent = t('storageItem', { used: mb });
@@ -141,6 +157,7 @@ export function updateAmber() {
     if (!S.amberNotified) { S.amberNotified = true; toast(t('nearlyFull'), { kind: 'warn', timeout: 12000 }); }
   }
   html.dataset.storage = S.full ? 'full' : amber ? 'amber' : 'ok';
+  if (was !== el.hidden) fitStatus(); // the bar's right side changed width
 }
 
 export function renderBanners() {

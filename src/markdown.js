@@ -6,7 +6,7 @@
 import { Prec } from '@codemirror/state';
 import { Decoration, EditorView, ViewPlugin, WidgetType, keymap } from '@codemirror/view';
 import { Language, defineLanguageFacet, languageDataProp, syntaxTree, language } from '@codemirror/language';
-import { parser as baseParser, Strikethrough, TaskList, Table } from '@lezer/markdown';
+import { parser as baseParser, Autolink, Strikethrough, TaskList, Table } from '@lezer/markdown';
 import { moveItemUp, moveItemDown, toggleTasks } from './lists.js';
 
 const data = defineLanguageFacet({});
@@ -34,7 +34,9 @@ const Highlight = {
   }],
 };
 
-const mdParser = baseParser.configure([Strikethrough, TaskList, Highlight, SplitLongParagraphs, { props: [languageDataProp.add({ Document: data })] }]);
+// Autolink: GFM's bare addresses (https://…, www.…, name@example.com), as URL nodes outside any link; only
+// Markdown tabs make links of them (livePreview, and Cmd/Ctrl+click, which only Markdown tabs have).
+const mdParser = baseParser.configure([Strikethrough, TaskList, Highlight, Autolink, SplitLongParagraphs, { props: [languageDataProp.add({ Document: data })] }]);
 export const markdownLanguage = new Language(data, mdParser, [], 'markdown');
 // The Help page (helpview.js) also has tables.
 export const helpParser = mdParser.configure([Table]);
@@ -43,6 +45,9 @@ export function safeUrl(url) {
   const u = String(url || '').trim();
   return /^(https?:|mailto:)/i.test(u) ? u : null;
 }
+// A bare address, as GFM finds it: www.… opens as https://, name@example.com as mailto:.
+const bareUrl = (s) => safeUrl(/^www\./i.test(s) ? 'https://' + s : /^[\w.+-]+@/.test(s) ? 'mailto:' + s : s);
+const isBare = (n) => n.name === 'URL' && !/^(Link|Autolink|Image)$/.test(n.parent?.name || '');
 
 class TextWidget extends WidgetType {
   constructor(text, cls, title) { super(); this.text = text; this.cls = cls; this.title = title || ''; }
@@ -230,6 +235,12 @@ function buildDecorations(view, t) {
             }
             return false;
           }
+          case 'URL': {
+            if (!isBare(node.node)) return;
+            const safe = bareUrl(doc.sliceString(nf, nt));
+            if (safe) add(nf, nt, Decoration.mark({ class: 'mt-link', attributes: { title: t('linkTip', { url: safe }) } }));
+            return;
+          }
           case 'Image': {
             if (linesActive(nf, nt) || doc.lineAt(nf).number !== doc.lineAt(nt).number) return false;
             const n = node.node;
@@ -402,6 +413,7 @@ export function linkAt(state, pos) {
   const tree = syntaxTree(state);
   for (const side of [1, -1]) {
     for (let n = tree.resolveInner(pos, side); n; n = n.parent) {
+      if (isBare(n)) return bareUrl(state.doc.sliceString(n.from, n.to));
       if (n.name === 'Link' || n.name === 'Autolink') {
         const u = n.getChild('URL');
         return u ? safeUrl(state.doc.sliceString(u.from, u.to)) : null;

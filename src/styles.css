@@ -443,7 +443,10 @@ html.tab-dragging, html.tab-dragging * { cursor: grabbing !important; }
   border-top: 1px solid var(--border);
   color: var(--text);
   white-space: nowrap;
+  position: relative; /* for the centred app name */
 }
+.st-app { position: absolute; left: 50%; transform: translateX(-50%); padding: 0 2ch; color: var(--text-muted); pointer-events: none; }
+.st-app[hidden] { display: none; }
 .st-left { display: flex; align-items: center; min-width: 0; overflow: hidden; }
 .st-sel { margin-left: 10px; padding-left: 10px; border-left: 1px solid var(--border); }
 /* Past the last abbreviation the counts end with an ellipsis, never cut mid-word. */

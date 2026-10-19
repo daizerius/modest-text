@@ -76,6 +76,7 @@ function build(node, doc, parent) {
     return;
   }
   if (node.name === 'Escape') { parent.append(doc.slice(node.from + 1, node.to)); return; }
+  if (node.name === 'URL') { text(parent, doc.slice(node.from, node.to)); return; } // a bare address: Help's links are written out
   // A link: only https, opened in a new tab without passing this page on; built as elements, as text.
   if (node.name === 'Link') {
     const marks = [];

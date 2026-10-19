@@ -14,6 +14,12 @@ All notable changes to Modest Text are listed here, newest first. The format fol
   saying what happened, in the middle of the window; Erase everything says so for a second before it
   erases. (#2)
 
+- The status bar shows "Modest Text" and the version, centred; it is the first thing to go, whole,
+  when the bar runs short. (#3)
+- In Markdown tabs, bare addresses are links: `https://…`, `www.…` (opened as https://) and
+  `name@example.com` (as mailto:), ending before trailing punctuation. Plain-text tabs keep them as
+  text. (#11)
+
 ### Changed
 
 - In Markdown tabs, a link shows its brackets and address only while the cursor is in the link, not
