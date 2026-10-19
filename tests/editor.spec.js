@@ -165,7 +165,7 @@ test('status: Unsaved → Saving… → Saved, dot colours, the save time in the
     const r = await page.evaluate(() => [document.getElementById('st-status').textContent, document.getElementById('st-dot').className]);
     if (r[0] !== 'Saved') seen = r;
   }
-  expect(seen).toEqual(['Unsaved', 'dot dot-red']);
+  expect(seen).toEqual(['Unsaved', 'dot dot-red']); // a dot while unsaved; the cross is for Save failed
   await expect(status(page)).toHaveText('Saved', { timeout: 3000 });
   await expect(page.locator('#st-dot')).toHaveClass(/dot-green/);
   // Beside the dot: the backup, not the note. Never exported yet.

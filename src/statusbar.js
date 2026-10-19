@@ -118,7 +118,7 @@ export function updateStatus(withCounts) {
   $('st-export').title = exp; // the whole wording, whatever the width left of the label
   $('st-export').setAttribute('aria-label', exp);
   const dotEl = $('st-dot');
-  dotEl.className = `dot dot-${dot}`;
+  dotEl.className = `dot dot-${dot}` + (!tab.help && tab.failed ? ' dot-x' : '');
   dotEl.hidden = $('st-sep').hidden = $('st-export').hidden = !!tab.help;
   const state = dot === 'red' ? t('dotUnsaved') : tab.savedAt ? t('dotSaved') : t('dotNever');
   const label = t('dotLabel', { state, when: stamp });

@@ -83,6 +83,9 @@ test('14c. full storage: red banner and "Save failed"; Export All has the unsave
   await expect(status(page)).toHaveText('Save failed');
   await expect(page.locator('#save-flash')).toBeHidden(); // Cmd/Ctrl+S never claims a save that failed
   await expect(page.locator('#st-dot')).toHaveClass(/dot-red/);
+  // Save failed is a cross, not a dot: it differs by shape, not by colour alone.
+  await expect(page.locator('#st-dot')).toHaveClass(/dot-x/);
+  expect(await page.locator('#st-dot').evaluate((e) => getComputedStyle(e).clipPath)).toMatch(/^polygon/);
   await expect(page.locator('.tab', { hasText: 'Work' })).not.toHaveClass(/unsaved/); // active: shown in the status bar
   await expect(page.locator('html')).toHaveAttribute('data-storage', 'full');
   // Saves keep retrying on every trigger; text stays in memory.
@@ -95,6 +98,7 @@ test('14c. full storage: red banner and "Save failed"; Export All has the unsave
   // Leaving the tab whose save failed: it is marked with a red dot; the other tab is not.
   await clickTab(page, 'Big');
   await expect(page.locator('.tab', { hasText: 'Work' })).toHaveClass(/unsaved/);
+  await expect(page.locator('.tab', { hasText: 'Work' })).toHaveClass(/save-failed/);
   await expect(page.locator('.tab', { hasText: 'Big' })).not.toHaveClass(/unsaved/);
   await clickTab(page, 'Work');
 

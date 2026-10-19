@@ -254,6 +254,9 @@ test('headings, bold and italic are subtly coloured in both modes; highlight is 
       else {
         expect(r.hl, at).toBe('rgba(0, 0, 0, 0)'); // the real highlight, not the tint
         expect(r.mdHl, at).toBe('rgb(235, 203, 139)');
+        // In the light theme the yellow is close to the page in lightness: an edge shows it without hue.
+        expect(await page.locator('.mt-highlight').first().evaluate((e) => getComputedStyle(e).boxShadow), at)
+          .toBe(theme === 'light' ? 'rgb(154, 116, 32) 0px 0px 0px 1px inset' : 'rgba(0, 0, 0, 0) 0px 0px 0px 1px inset');
         expect(r.link, at).toBe('rgb(46, 52, 64)');
         // Code in a highlight keeps the dark text on a darker yellow; the link's underline is a saturated blue.
         expect(await page.locator('.mt-highlight .mt-code').evaluate((e) => [getComputedStyle(e).color, getComputedStyle(e).backgroundColor]), at)

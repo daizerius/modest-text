@@ -41,6 +41,11 @@ All notable changes to Modest Text are listed here, newest first. The format fol
   - Selected text takes the main text colour (syntax colours fell to 1.7–4.4:1 on the selection).
   - Struck-out text in a highlight, and code inside links, headings or struck-out text, read in full.
   - List bullets are a darker blue in the light theme.
+  - With colour blindness too: the colours keep 4.5:1 as protanopia and deuteranopia see them (the
+    dark highlight tint is darker), and in the light theme a highlight has an edge, as the yellow and
+    the page are close in lightness.
+- "Save failed" shows a red cross instead of the red dot, in the status bar and on the tab, so it
+  differs from "Unsaved" by shape and not by colour alone.
 - A second window opened on a new workspace (or reloaded with the first by Erase all local data) shows
   Help, as the first does, instead of an "Untitled 1" tab of its own. Until a note is written, a reload
   opens on Help again.

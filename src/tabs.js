@@ -164,6 +164,7 @@ export function createTabEl(id) {
 export function markTab(el, tab) {
   const unsaved = !tab.help && tab.id !== S.activeId && (tab.dirty || tab.failed);
   el.classList.toggle('unsaved', unsaved);
+  el.classList.toggle('save-failed', unsaved && !!tab.failed); // a cross instead of the dot
   el.setAttribute('aria-label', unsaved ? `${tab.name} (${t('tabUnsaved')})` : tab.name);
   el.title = tab.help ? tab.name : (unsaved ? `${t('tabUnsaved')}\n` : '') + t('tabTip', { name: tab.name });
 }

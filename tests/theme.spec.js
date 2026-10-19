@@ -482,7 +482,8 @@ test('a primary button keeps a readable label while it has the keyboard focus, i
 
 // Every inline format, alone and nested in each other, in headings, quotes and lists: in both themes and modes,
 // with Find on and when selected, every piece of text reads at WCAG AA (4.5:1; 3:1 for large text) against
-// whatever is behind it — tints, code boxes and highlights included.
+// whatever is behind it — tints, code boxes and highlights included — also as protanopia and deuteranopia see
+// it (Machado et al. 2009, full severity).
 test('every combination of syntax colours, highlights, code boxes, Find matches and selection meets AA', async ({ page, appURL }) => {
   test.setTimeout(120000);
   await page.setViewportSize({ width: 1300, height: 6000 }); // the whole note is drawn at once
@@ -496,6 +497,11 @@ test('every combination of syntax colours, highlights, code boxes, Find matches 
     const parse = (c) => { const m = c.match(/[\d.]+/g); return m ? [+m[0], +m[1], +m[2], m[3] === undefined ? 1 : +m[3]] : [0, 0, 0, 0]; };
     const over = (t, b) => { const a = t[3] + b[3] * (1 - t[3]); return a ? [0, 1, 2].map((i) => (t[i] * t[3] + b[i] * b[3] * (1 - t[3])) / a).concat(a) : [0, 0, 0, 0]; };
     const lum = (c) => c.slice(0, 3).map((x) => x / 255).map((x) => (x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4)).reduce((s, v, i) => s + v * [0.2126, 0.7152, 0.0722][i], 0);
+    const M = { protan: [[0.152286, 1.052583, -0.204868], [0.114503, 0.786281, 0.099216], [-0.003882, -0.048116, 1.051998]],
+      deutan: [[0.367322, 0.860646, -0.227968], [0.280085, 0.672501, 0.047413], [-0.011820, 0.042940, 0.968881]] };
+    const toLin = (x) => (x / 255 <= 0.04045 ? x / 255 / 12.92 : ((x / 255 + 0.055) / 1.055) ** 2.4);
+    const fromLin = (v) => 255 * (v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055);
+    const sim = (c, m) => { const l = c.slice(0, 3).map(toLin); return m.map((r) => fromLin(Math.min(1, Math.max(0, r[0] * l[0] + r[1] * l[1] + r[2] * l[2])))).concat(1); };
     const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
     const bgOf = (el) => { const layers = []; for (let e = el; e; e = e.parentElement) { const c = parse(getComputedStyle(e).backgroundColor); if (c[3] > 0) { layers.push(c); if (c[3] >= 1) break; } } return layers.reduceRight((b, l) => over(l, b), [255, 255, 255, 1]); };
     const out = [];
@@ -507,8 +513,11 @@ test('every combination of syntax colours, highlights, code boxes, Find matches 
       const need = parseFloat(cs.fontSize) >= 24 || (+cs.fontWeight >= 700 && parseFloat(cs.fontSize) >= 18.66) ? 3 : 4.5;
       const bg = bgOf(el), sb = over(parse(sel.backgroundColor), bg);
       for (const [what, f, b] of [['', parse(cs.color), bg], [' selected', parse(sel.color), sb]]) {
-        const r = ratio(over(f, b), b);
-        if (r < need) out.push(`${n.textContent.trim()}${what}: ${r.toFixed(2)} in ${el.className}`);
+        const fg = over(f, b);
+        for (const [vision, conv] of [['', (c) => c], ...Object.entries(M).map(([k, m]) => [` (${k})`, (c) => sim(c, m)])]) {
+          const r = ratio(conv(fg), conv(b));
+          if (r < need) out.push(`${n.textContent.trim()}${what}${vision}: ${r.toFixed(2)} in ${el.className} (${cs.color} on ${b.map(Math.round)})`);
+        }
       }
     }
     return out;

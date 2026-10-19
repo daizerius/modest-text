@@ -29,6 +29,7 @@
   --c-strong: #7A4A12;
   --c-em: #2C6670;
   --hl-tint: #F3E5C3;
+  --hl-line: #9A7420; /* the light page and the yellow are close in lightness: an edge for those who see no hue */
   --c-code: #9E3B4B;
   --zebra: rgba(46, 52, 64, 0.06);
   --banner-full-bg: #EBD3D6;
@@ -69,7 +70,8 @@
   --c-h: #93B4D4;
   --c-strong: #E9CF9E;
   --c-em: #93C9C4;
-  --hl-tint: #46433A;
+  --hl-tint: #403E37; /* dark enough that the syntax colours keep 4.5:1 also as protanopia and deuteranopia see them */
+  --hl-line: transparent;
   --c-code: #EBA0AA;
   --zebra: rgba(236, 239, 244, 0.05);
   --banner-full-bg: #5A3D46;
@@ -383,7 +385,7 @@ html.tab-dragging, html.tab-dragging * { cursor: grabbing !important; }
 .mt-md .mt-em { font-style: italic; }
 .mt-md .mt-strong { font-weight: 700; }
 .mt-md .mt-strike { text-decoration: line-through; text-decoration-color: var(--text); color: var(--strike-text); } /* fainter text, same line */
-.mt-md .mt-highlight { background: var(--highlight-bg); color: #2E3440; border-radius: 2px; }
+.mt-md .mt-highlight { background: var(--highlight-bg); color: #2E3440; border-radius: 2px; box-shadow: inset 0 0 0 1px var(--hl-line); }
 /* Code in a Markdown tab: the main text colour on its box, even inside a heading's colour (currentColor). */
 .mt-md .mt-code { --c-h: currentColor; color: var(--text-strong); font-family: var(--mono-font); font-size: 0.88em; background: var(--code-bg); border-radius: 3px; padding: 0.1em 0.25em; }
 .mt-md .mt-codeblock { font-family: var(--mono-font); font-size: 0.88em; background: var(--code-bg); line-height: 1.45; }
@@ -404,11 +406,11 @@ html.tab-dragging, html.tab-dragging * { cursor: grabbing !important; }
 .mt-c-h { color: var(--c-h); }
 .mt-c-strong { color: var(--c-strong); }
 .mt-c-em { color: var(--c-em); }
-.cm-editor:not(.mt-md) .mt-c-hl { background: var(--hl-tint); border-radius: 2px; }
+.cm-editor:not(.mt-md) .mt-c-hl { background: var(--hl-tint); border-radius: 2px; box-shadow: inset 0 0 0 1px var(--hl-line); }
 .cm-editor:not(.mt-md) .mt-c-code { color: var(--c-code); }
 /* On the yellow of a Markdown highlight, only the dark text colour reads well: everything in it takes it,
    and a link keeps its underline. */
-.mt-md .mt-highlight { --c-h: #2E3440; --c-strong: #2E3440; --c-em: #2E3440; --link: #2E3440; --link-url: #2E3440; --link-bracket: #2E3440; --link-paren: #2E3440; --link-line: #0B57D0; --strike-text: #4C566A;
+.mt-md .mt-highlight { --c-h: #2E3440; --c-strong: #2E3440; --c-em: #2E3440; --link: #2E3440; --link-url: #2E3440; --link-bracket: #2E3440; --link-paren: #2E3440; --link-line: #0B57D0; --strike-text: #434C5E;
   padding-bottom: 3px; } /* the yellow reaches under a link's underline, which would sit on the page below it */
 /* Code in a highlight: a darker shade of the yellow, not the code box, which in dark mode hid the dark text. */
 .mt-md .mt-highlight .mt-code { background: rgba(46, 52, 64, 0.1); color: #2E3440; }
@@ -453,6 +455,11 @@ html.tab-dragging, html.tab-dragging * { cursor: grabbing !important; }
 .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; background: var(--border); }
 .dot-red { background: var(--dot-red); }
 .dot-green { background: var(--dot-green); }
+/* Save failed: a cross, not a dot, so it differs from "unsaved" by shape as well as from "saved" by colour. */
+.dot.dot-x, .tab.save-failed .tab-name::before { border-radius: 0;
+  clip-path: polygon(20% 0, 50% 30%, 80% 0, 100% 20%, 70% 50%, 100% 80%, 80% 100%, 50% 70%, 20% 100%, 0 80%, 30% 50%, 0 20%); }
+.dot.dot-x { width: 11px; height: 11px; }
+.tab.save-failed .tab-name::before { width: 8px; height: 8px; }
 
 /* ---------- toasts, modal, drop overlay */
 
