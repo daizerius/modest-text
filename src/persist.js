@@ -238,7 +238,10 @@ export function loadWorkspace() {
   const order = [];
   if (index) for (const id of index.order) if (typeof id === 'string' && loaded.has(id) && !order.includes(id)) order.push(id);
   for (const id of [...loaded.keys()].sort()) if (!order.includes(id)) order.push(id);
-  const first = !idx.error && idx.value == null && keys.every((k) => !k.startsWith(TAB_PREFIX) && k !== K.closed);
+  // First launch: nothing stored but, at most, an index with no tabs. A window that starts just after another
+  // one (both reloaded by Erase all local data) finds the index the first wrote for its Help tab, and also opens
+  // on Help, not on an "Untitled" tab of its own.
+  const first = !idx.error && order.length === 0 && broken.length === 0 && keys.every((k) => !k.startsWith(TAB_PREFIX) && k !== K.closed);
   return { order, loaded, broken, active: index && index.active, first, indexError: !!idx.error };
 }
 

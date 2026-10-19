@@ -138,6 +138,15 @@ for (const path of ['weblock', 'lease']) {
       await expect(page.locator('.toast-text').last()).toContainText('(conflict)');
     });
 
+    test('a second window opened on a new workspace also shows Help, not an "Untitled" tab of its own', async ({ page, context, appURL }) => {
+      await openApp(page, appURL);
+      await expect(page.locator('.tab .tab-name')).toHaveText(['Help']);
+      await expect.poll(() => page.evaluate(() => localStorage.getItem('modest-text:v1:index'))).not.toBeNull(); // the first window wrote its index
+      const b = await context.newPage();
+      await openApp(b, appURL, { role: 'readonly' });
+      await expect(b.locator('.tab .tab-name')).toHaveText(['Help']);
+    });
+
     test('Erase all local data, from Help, asks first, then empties every window', async ({ page, context, appURL }) => {
       await openFresh(page, appURL);
       await setDoc(page, 'a note');

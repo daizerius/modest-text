@@ -71,7 +71,9 @@ test('storage keys: every key is prefixed modest-text:v1:, one key per tab, othe
   expect(writes.filter((k) => !k.replace(/^rm:/, '').startsWith('modest-text:v1:'))).toEqual([]);
   const s = await stored(page);
   expect(Object.keys(s).sort()).toEqual(expect.arrayContaining(['modest-text:v1:index', 'modest-text:v1:settings'].filter((k) => k in s)));
-  expect(Object.keys(s).filter((k) => k.startsWith('modest-text:v1:tab:'))).toHaveLength((await tabNames(page)).length);
+  // Help is never stored (nothing was written before the reload, so the page opened on Help again).
+  expect(await tabNames(page)).toContain('Help');
+  expect(Object.keys(s).filter((k) => k.startsWith('modest-text:v1:tab:'))).toHaveLength((await tabNames(page)).filter((n) => n !== 'Help').length);
   expect(await page.evaluate(() => [localStorage.getItem('other-app'), localStorage.getItem('mt-lookalike')])).toEqual(['keep me', 'x']);
 });
 

@@ -35,6 +35,16 @@ All notable changes to Modest Text are listed here, newest first. The format fol
 
 ### Fixed
 
+- Every combination of formats now reads at WCAG AA in both themes, checked by a test over all of them:
+  - Find matches have solid tints, one text colour and an outline; the current match is dark text on
+    amber (in the dark theme it was 3.6:1).
+  - Selected text takes the main text colour (syntax colours fell to 1.7–4.4:1 on the selection).
+  - Struck-out text in a highlight, and code inside links, headings or struck-out text, read in full.
+  - List bullets are a darker blue in the light theme.
+- A second window opened on a new workspace (or reloaded with the first by Erase all local data) shows
+  Help, as the first does, instead of an "Untitled 1" tab of its own. Until a note is written, a reload
+  opens on Help again.
+
 - Pasting an address into the `https://` placeholder of `⌘K` / `Ctrl+K` no longer nests a second
   link; the address goes in trimmed and the cursor moves past the link. (#15)
 

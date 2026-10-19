@@ -16,8 +16,9 @@
   --focus: #5E81AC;
   --focus-bg: #C9D6E6;
   --strike-text: #626B7C;
-  --find-bg: rgba(136, 192, 208, 0.45);
-  --find-current-bg: rgba(235, 203, 139, 0.9);
+  --find-bg: #BFDAE4;
+  --find-current-bg: #EBCD90;
+  --bullet: #4C6A94;
   --code-bg: #D8DEE9;
   --sel: #C9D6E6;
   --link: #2E3440;
@@ -56,8 +57,9 @@
   --focus: #88C0D0;
   --focus-bg: #4C566A;
   --strike-text: #969EAC;
-  --find-bg: rgba(136, 192, 208, 0.3);
-  --find-current-bg: rgba(235, 203, 139, 0.45);
+  --find-bg: #495E6B;
+  --find-current-bg: #D8B56E;
+  --bullet: #88C0D0;
   --code-bg: #434C5E;
   --sel: #4C566A;
   --link: #88C0D0;
@@ -331,7 +333,8 @@ html.tab-dragging, html.tab-dragging * { cursor: grabbing !important; }
 #editor .cm-content { caret-color: var(--text-strong); padding: 10px 0 40vh; }
 /* Left padding = the base (more on quote lines) + an extra indent per nested list level (Markdown tabs). */
 #editor .cm-line { padding: 0 18px; padding-left: calc(var(--line-pad, 18px) + var(--list-pad, 0px)); }
-#editor .cm-content ::selection, #editor .cm-content::selection { background: var(--sel); color: inherit; }
+/* Selected text takes the main text colour: the syntax colours do not all read on the selection's. */
+#editor .cm-content ::selection, #editor .cm-content::selection { background: var(--sel); color: var(--text-strong); }
 /* Reading width: a centred column of comfortable measure. Only ever on where the text wraps, so a long
    line is never cut off (see updateToolbar: the button is disabled in a plain tab whose wrap is off). */
 #editor[data-read="1"] .cm-content { max-width: 80ch; margin-inline: auto; }
@@ -381,7 +384,8 @@ html.tab-dragging, html.tab-dragging * { cursor: grabbing !important; }
 .mt-md .mt-strong { font-weight: 700; }
 .mt-md .mt-strike { text-decoration: line-through; text-decoration-color: var(--text); color: var(--strike-text); } /* fainter text, same line */
 .mt-md .mt-highlight { background: var(--highlight-bg); color: #2E3440; border-radius: 2px; }
-.mt-md .mt-code { font-family: var(--mono-font); font-size: 0.88em; background: var(--code-bg); border-radius: 3px; padding: 0.1em 0.25em; }
+/* Code in a Markdown tab: the main text colour on its box, even inside a heading's colour (currentColor). */
+.mt-md .mt-code { --c-h: currentColor; color: var(--text-strong); font-family: var(--mono-font); font-size: 0.88em; background: var(--code-bg); border-radius: 3px; padding: 0.1em 0.25em; }
 .mt-md .mt-codeblock { font-family: var(--mono-font); font-size: 0.88em; background: var(--code-bg); line-height: 1.45; }
 .mt-md .mt-codeblock-first { border-top-left-radius: 3px; border-top-right-radius: 3px; }
 .mt-md .mt-codeblock-last { border-bottom-left-radius: 3px; border-bottom-right-radius: 3px; }
@@ -404,13 +408,13 @@ html.tab-dragging, html.tab-dragging * { cursor: grabbing !important; }
 .cm-editor:not(.mt-md) .mt-c-code { color: var(--c-code); }
 /* On the yellow of a Markdown highlight, only the dark text colour reads well: everything in it takes it,
    and a link keeps its underline. */
-.mt-md .mt-highlight { --c-h: #2E3440; --c-strong: #2E3440; --c-em: #2E3440; --link: #2E3440; --link-url: #2E3440; --link-bracket: #2E3440; --link-paren: #2E3440; --link-line: #0B57D0;
+.mt-md .mt-highlight { --c-h: #2E3440; --c-strong: #2E3440; --c-em: #2E3440; --link: #2E3440; --link-url: #2E3440; --link-bracket: #2E3440; --link-paren: #2E3440; --link-line: #0B57D0; --strike-text: #4C566A;
   padding-bottom: 3px; } /* the yellow reaches under a link's underline, which would sit on the page below it */
 /* Code in a highlight: a darker shade of the yellow, not the code box, which in dark mode hid the dark text. */
-.mt-md .mt-highlight .mt-code { background: rgba(46, 52, 64, 0.1); }
+.mt-md .mt-highlight .mt-code { background: rgba(46, 52, 64, 0.1); color: #2E3440; }
 /* An autolink's address is its text: in a Markdown tab it looks like any link's text. */
 .mt-md .mt-link .mt-link-url, .mt-md .mt-link-url .mt-link, .mt-md .mt-link.mt-link-url { color: var(--link); }
-.mt-md .mt-bullet { color: var(--accent); font-weight: 700; }
+.mt-md .mt-bullet { color: var(--bullet); font-weight: 700; }
 .mt-md .mt-listmark { color: var(--text-muted); }
 /* List markers in a box of the list's marker width (--mk, set on the line with its hanging indent). */
 .mt-md .mt-listbox { display: inline-block; min-width: var(--mk, 1.3em); text-indent: 0; }
@@ -522,8 +526,16 @@ html.tab-dragging, html.tab-dragging * { cursor: grabbing !important; }
 .find-input.no-match { border-color: var(--red); }
 .find-count { min-width: 6em; padding: 0 4px; color: var(--text); font-variant-numeric: tabular-nums; }
 .find-btn svg.icon { width: 18px; height: 18px; }
-.mt-find { background: var(--find-bg); border-radius: 2px; }
-.mt-find-current { background: var(--find-current-bg); box-shadow: 0 0 0 1px var(--accent); }
+/* Find matches: solid tints and one text colour, the same over any syntax colour, code box or highlight,
+   and an outline, so a match shows on the page by more than a slight tint. The current one: dark on amber. */
+.mt-find { background: var(--find-bg); border-radius: 2px; box-shadow: 0 0 0 1px var(--accent); color: var(--text);
+  --c-h: var(--text); --c-strong: var(--text); --c-em: var(--text); --c-code: var(--text); --strike-text: var(--text);
+  --link: var(--text); --link-url: var(--text); --link-bracket: var(--text); --link-paren: var(--text); }
+.mt-find .mt-code { background: none; }
+.mt-find-current { background: var(--find-current-bg); box-shadow: 0 0 0 2px var(--accent); color: #2E3440;
+  --c-h: #2E3440; --c-strong: #2E3440; --c-em: #2E3440; --c-code: #2E3440; --strike-text: #2E3440;
+  --link: #2E3440; --link-url: #2E3440; --link-bracket: #2E3440; --link-paren: #2E3440; }
+.mt-find .mt-code { color: inherit; }
 
 /* ---------- shortcut sheet */
 .keys-dialog { width: min(680px, calc(100vw - 32px)); max-height: calc(100vh - 48px); font-size: 14.5px; }

@@ -479,3 +479,55 @@ test('a primary button keeps a readable label while it has the keyboard focus, i
     }
   }
 });
+
+// Every inline format, alone and nested in each other, in headings, quotes and lists: in both themes and modes,
+// with Find on and when selected, every piece of text reads at WCAG AA (4.5:1; 3:1 for large text) against
+// whatever is behind it — tints, code boxes and highlights included.
+test('every combination of syntax colours, highlights, code boxes, Find matches and selection meets AA', async ({ page, appURL }) => {
+  test.setTimeout(120000);
+  await page.setViewportSize({ width: 1300, height: 6000 }); // the whole note is drawn at once
+  await openFresh(page, appURL);
+  const W = { bold: (s) => `**${s}**`, italic: (s) => `_${s}_`, strike: (s) => `~~${s}~~`, hl: (s) => `==${s}==`, code: (s) => `\`${s}\``, link: (s) => `[${s}](https://e.com/p)` };
+  const inner = Object.values(W).map((w) => w('word'));
+  for (const x of Object.keys(W)) for (const y of Object.keys(W)) if (x !== y && x !== 'code' && !(x === 'link' && y === 'link')) inner.push(W[x](`a ${W[y]('word')} b`));
+  inner.push('<https://e.com/auto>', 'plain word');
+  const doc = ['', '###### ', '> ', '- '].flatMap((p) => [...inner.map((s) => p + s), '']).join('\n') + '\n```\ncode block word\n```';
+  const fails = () => page.evaluate(() => {
+    const parse = (c) => { const m = c.match(/[\d.]+/g); return m ? [+m[0], +m[1], +m[2], m[3] === undefined ? 1 : +m[3]] : [0, 0, 0, 0]; };
+    const over = (t, b) => { const a = t[3] + b[3] * (1 - t[3]); return a ? [0, 1, 2].map((i) => (t[i] * t[3] + b[i] * b[3] * (1 - t[3])) / a).concat(a) : [0, 0, 0, 0]; };
+    const lum = (c) => c.slice(0, 3).map((x) => x / 255).map((x) => (x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4)).reduce((s, v, i) => s + v * [0.2126, 0.7152, 0.0722][i], 0);
+    const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+    const bgOf = (el) => { const layers = []; for (let e = el; e; e = e.parentElement) { const c = parse(getComputedStyle(e).backgroundColor); if (c[3] > 0) { layers.push(c); if (c[3] >= 1) break; } } return layers.reduceRight((b, l) => over(l, b), [255, 255, 255, 1]); };
+    const out = [];
+    const w = document.createTreeWalker(document.querySelector('.cm-content'), NodeFilter.SHOW_TEXT);
+    for (let n; (n = w.nextNode());) {
+      const el = n.parentElement;
+      if (!n.textContent.trim() || !el.getClientRects().length) continue;
+      const cs = getComputedStyle(el), sel = getComputedStyle(el, '::selection');
+      const need = parseFloat(cs.fontSize) >= 24 || (+cs.fontWeight >= 700 && parseFloat(cs.fontSize) >= 18.66) ? 3 : 4.5;
+      const bg = bgOf(el), sb = over(parse(sel.backgroundColor), bg);
+      for (const [what, f, b] of [['', parse(cs.color), bg], [' selected', parse(sel.color), sb]]) {
+        const r = ratio(over(f, b), b);
+        if (r < need) out.push(`${n.textContent.trim()}${what}: ${r.toFixed(2)} in ${el.className}`);
+      }
+    }
+    return out;
+  });
+  for (const md of [false, true]) {
+    if (md) await page.click('#btn-md');
+    await setDoc(page, doc);
+    await setCursor(page, doc.length);
+    for (const theme of ['light', 'dark']) {
+      await page.evaluate((th) => { document.documentElement.dataset.theme = th; }, theme);
+      expect(await fails(), `${theme} ${md ? 'md' : 'plain'}`).toEqual([]);
+    }
+    await page.keyboard.press('ControlOrMeta+f');
+    await page.keyboard.type('word');
+    await expect(page.locator('.mt-find-current')).toHaveCount(1);
+    for (const theme of ['light', 'dark']) {
+      await page.evaluate((th) => { document.documentElement.dataset.theme = th; }, theme);
+      expect(await fails(), `${theme} ${md ? 'md' : 'plain'} find`).toEqual([]);
+    }
+    await page.keyboard.press('Escape');
+  }
+});
