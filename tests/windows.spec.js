@@ -160,24 +160,27 @@ for (const path of ['weblock', 'lease']) {
       const zip = await download(page, () => page.keyboard.press('Enter'));
       expect(zip.name).toMatch(/\.zip$/);
       await expect(page.locator('#erase-dialog')).toBeHidden();
-      await expect(page.locator('#toasts')).toContainText('Your notes were exported to a ZIP file. Nothing was erased.');
+      await expect(page.locator('#save-flash')).toContainText('Your notes were exported to a ZIP file. Nothing was erased.');
       await erase.click();
       await page.click('#erase-cancel');
       await expect(page.locator('#erase-dialog')).toBeHidden();
-      await expect(page.locator('#toasts')).toContainText('Nothing was erased.');
+      await expect(page.locator('#save-flash')).toContainText('Nothing was erased.');
       expect(Object.keys(await stored(page)).some((k) => k.startsWith('modest-text:v1:tab:'))).toBe(true);
       // Erase: both windows start afresh, on Help, without a "Leave site?" box, and other pages' data stays.
       const boxes = [];
       page.on('dialog', (d) => boxes.push(d.type()));
       await erase.click();
-      await Promise.all([page.waitForEvent('load'), b.waitForEvent('load'), page.click('#erase-ok')]);
+      const t0 = Date.now();
+      await Promise.all([page.waitForEvent('load'), b.waitForEvent('load'), page.click('#erase-ok')
+        .then(() => expect(page.locator('#save-flash')).toHaveText('Erasing all local data…'))]);
+      expect(Date.now() - t0).toBeGreaterThanOrEqual(1000); // a second to read it before anything goes
       for (const p of [page, b]) {
         await expect(p.locator('html[data-ready="1"]')).toHaveCount(1);
         await expect(p.locator('.tab .tab-name')).toHaveText(['Help']);
       }
       expect(boxes).toEqual([]);
-      await expect(page.locator('#toasts')).toContainText('All local data was erased.');
-      await expect(b.locator('#toasts')).not.toContainText('erased'); // only where it was done
+      await expect(page.locator('#save-flash')).toHaveText('All local data was erased.');
+      await expect(b.locator('#save-flash')).toBeHidden(); // only where it was done
       const keys = await page.evaluate(() => Object.keys(localStorage));
       expect(keys.filter((k) => k.startsWith('modest-text:v1:tab:') || k === 'modest-text:v1:settings')).toEqual([]);
       expect(keys).toContain('other-page');

@@ -31,7 +31,7 @@ export function toast(msg, { kind = 'info', timeout = 7000 } = {}) {
 // A short message in the middle of the window, gone after a second: the answer to Cmd/Ctrl+S, which
 // people press expecting to save the page as a file. Not a toast: nothing to dismiss, nothing that stays.
 let flashTimer = null;
-export function flash(title, hint = '') {
+export function flash(title, hint = '', ms = 1000) {
   const el = $('save-flash');
   $('save-flash-title').textContent = title;
   $('save-flash-hint').textContent = hint;
@@ -42,7 +42,7 @@ export function flash(title, hint = '') {
   flashTimer = setTimeout(() => {
     el.classList.add('out'); // fades (unless reduced motion), then hides
     flashTimer = setTimeout(() => { el.hidden = true; el.classList.remove('out'); }, 200);
-  }, 1000);
+  }, ms);
 }
 
 // ---------------------------------------------------------------- UI: status bar

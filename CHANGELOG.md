@@ -11,7 +11,8 @@ All notable changes to Modest Text are listed here, newest first. The format fol
 - **Erase all local data**, at the end of Help's "Where are my notes?": after a warning, whose
   default is Export All first (never Erase), it deletes every note, closed tab and setting the app keeps in this browser, in
   every open window of it. Only the editing window can do it. Each choice ends with a short message
-  saying what happened. (#2)
+  saying what happened, in the middle of the window; Erase everything says so for a second before it
+  erases. (#2)
 
 ### Changed
 
@@ -25,7 +26,7 @@ All notable changes to Modest Text are listed here, newest first. The format fol
   Markdown tabs.
 - Headings, bold and italic are subtly coloured in plain-text and Markdown tabs; in plain-text tabs,
   highlighted text has a soft tint and inline code a colour of its own. In a Markdown highlight, a link
-  reads in the dark text colour instead of light blue on yellow, and its underline stays on the yellow.
+  reads in the dark text colour instead of light blue on yellow, and its underline, a saturated blue, stays on the yellow; code in a highlight keeps dark text.
 - The shortcut sheet is a little larger and wider, with every other row shaded; a long description
   breaks between its clauses, and keys named in it (moving a tab with `←` / `→`) look like keys.
 - The Help page is centred, as its reading-width tooltip always said.

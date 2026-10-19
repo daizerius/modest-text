@@ -404,8 +404,10 @@ html.tab-dragging, html.tab-dragging * { cursor: grabbing !important; }
 .cm-editor:not(.mt-md) .mt-c-code { color: var(--c-code); }
 /* On the yellow of a Markdown highlight, only the dark text colour reads well: everything in it takes it,
    and a link keeps its underline. */
-.mt-md .mt-highlight { --c-h: #2E3440; --c-strong: #2E3440; --c-em: #2E3440; --link: #2E3440; --link-url: #2E3440; --link-bracket: #2E3440; --link-paren: #2E3440; --link-line: #4C6EA0;
+.mt-md .mt-highlight { --c-h: #2E3440; --c-strong: #2E3440; --c-em: #2E3440; --link: #2E3440; --link-url: #2E3440; --link-bracket: #2E3440; --link-paren: #2E3440; --link-line: #0B57D0;
   padding-bottom: 3px; } /* the yellow reaches under a link's underline, which would sit on the page below it */
+/* Code in a highlight: a darker shade of the yellow, not the code box, which in dark mode hid the dark text. */
+.mt-md .mt-highlight .mt-code { background: rgba(46, 52, 64, 0.1); }
 /* An autolink's address is its text: in a Markdown tab it looks like any link's text. */
 .mt-md .mt-link .mt-link-url, .mt-md .mt-link-url .mt-link, .mt-md .mt-link.mt-link-url { color: var(--link); }
 .mt-md .mt-bullet { color: var(--accent); font-weight: 700; }

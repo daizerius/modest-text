@@ -225,7 +225,7 @@ test('a link\'s brackets, parentheses and address each have their own colour, in
 
 test('headings, bold and italic are subtly coloured in both modes; highlight is tinted in plain-text tabs; a link in a Markdown highlight reads in the dark text colour', async ({ page, appURL }) => {
   await openFresh(page, appURL); // a plain-text tab
-  const doc = '# Title\n\nSome **bold**, _italic_, `code` and ==marked [a link](https://example.com)== text.';
+  const doc = '# Title\n\nSome **bold**, _italic_, `code` and ==marked `c` [a link](https://example.com)== text.';
   const look = () => page.evaluate(() => {
     const css = (sel) => { const e = document.querySelector(sel); return e && getComputedStyle(e); };
     const lum = (c) => { const v = c.match(/[\d.]+/g).slice(0, 3).map((x) => x / 255).map((x) => (x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4)); return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2]; };
@@ -255,6 +255,10 @@ test('headings, bold and italic are subtly coloured in both modes; highlight is 
         expect(r.hl, at).toBe('rgba(0, 0, 0, 0)'); // the real highlight, not the tint
         expect(r.mdHl, at).toBe('rgb(235, 203, 139)');
         expect(r.link, at).toBe('rgb(46, 52, 64)');
+        // Code in a highlight keeps the dark text on a darker yellow; the link's underline is a saturated blue.
+        expect(await page.locator('.mt-highlight .mt-code').evaluate((e) => [getComputedStyle(e).color, getComputedStyle(e).backgroundColor]), at)
+          .toEqual(['rgb(46, 52, 64)', 'rgba(46, 52, 64, 0.1)']);
+        expect(await page.locator('.mt-highlight .mt-link').evaluate((e) => getComputedStyle(e).textDecorationColor), at).toBe('rgb(11, 87, 208)');
       }
     }
   }

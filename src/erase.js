@@ -2,7 +2,7 @@
 import { K, store } from './storage.js';
 import { $, S, html, t, windowId } from './state.js';
 import { exportAll } from './io.js';
-import { toast } from './statusbar.js';
+import { toast, flash } from './statusbar.js';
 import { helpView } from './helpview.js';
 import { leaseTimer } from './windows.js';
 
@@ -16,12 +16,21 @@ export function openErase() {
   dialog.showModal();
 }
 
+// What the warning's choices did, in the middle of the window, where it cannot be missed.
+const said = (msg) => flash(msg, '', 2500);
+
 export function eraseAll() {
   // From here on this window writes nothing (every save checks the role), so nothing comes back on the way out,
   // and the page closes without the "Leave site?" box.
   S.role = 'erased';
   html.dataset.role = 'erased';
   clearInterval(leaseTimer);
+  dialog.close();
+  flash(t('eraseDoing'), '', 2000);
+  // A second to read it, then the erasing; the lease, not renewed, outlasts it, so no other window takes over.
+  setTimeout(eraseNow, 1000);
+}
+function eraseNow() {
   // The other windows first, before the lease disappears: one that took over now would save its copy again.
   store.set(K.msg, JSON.stringify({ type: 'erased', from: windowId, n: Math.random() }));
   for (const k of store.ownKeys()) store.remove(k);
@@ -31,9 +40,9 @@ export function eraseAll() {
 
 helpView.addEventListener('click', (e) => { if (e.target.closest('[data-action="erase"]')) openErase(); });
 // Each choice says what it did. The safe ones close the warning, so the toast is not under its backdrop.
-$('erase-cancel').addEventListener('click', () => { dialog.close(); toast(t('eraseCancelled')); });
-$('erase-export').addEventListener('click', () => { dialog.close(); if (exportAll()) toast(t('eraseExported')); });
+$('erase-cancel').addEventListener('click', () => { dialog.close(); said(t('eraseCancelled')); });
+$('erase-export').addEventListener('click', () => { dialog.close(); if (exportAll()) said(t('eraseExported')); });
 try {
-  if (sessionStorage.getItem(ERASED)) { sessionStorage.removeItem(ERASED); toast(t('eraseDone')); }
+  if (sessionStorage.getItem(ERASED)) { sessionStorage.removeItem(ERASED); said(t('eraseDone')); }
 } catch { /* storage blocked */ }
 $('erase-ok').addEventListener('click', eraseAll);
