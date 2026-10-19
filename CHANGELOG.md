@@ -8,9 +8,10 @@ All notable changes to Modest Text are listed here, newest first. The format fol
 
 ### Added
 
-- **Erase all local data**, at the end of Help's "Where are my notes?": after a warning, which offers
-  Export All first, it deletes every note, closed tab and setting the app keeps in this browser, in
-  every open window of it. Only the editing window can do it. (#2)
+- **Erase all local data**, at the end of Help's "Where are my notes?": after a warning, whose
+  default is Export All first (never Erase), it deletes every note, closed tab and setting the app keeps in this browser, in
+  every open window of it. Only the editing window can do it. Each choice ends with a short message
+  saying what happened. (#2)
 
 ### Changed
 
@@ -22,11 +23,11 @@ All notable changes to Modest Text are listed here, newest first. The format fol
   checking a task next to the task list, and ends with Files.
 - A link's brackets, parentheses and address each have a colour of their own, in plain-text and
   Markdown tabs.
-- Headings, bold and italic are subtly coloured in plain-text and Markdown tabs; highlighted text has a
-  soft tint in plain-text tabs. In a Markdown highlight, a link now reads in the dark text colour instead
-  of light blue on yellow.
-- The shortcut sheet is a little larger and wider; a long description breaks between its clauses, and
-  keys named in it (moving a tab with `←` / `→`) look like keys.
+- Headings, bold and italic are subtly coloured in plain-text and Markdown tabs; in plain-text tabs,
+  highlighted text has a soft tint and inline code a colour of its own. In a Markdown highlight, a link
+  reads in the dark text colour instead of light blue on yellow, and its underline stays on the yellow.
+- The shortcut sheet is a little larger and wider, with every other row shaded; a long description
+  breaks between its clauses, and keys named in it (moving a tab with `←` / `→`) look like keys.
 - The Help page is centred, as its reading-width tooltip always said.
 - The page opens in the dark theme and turns light, with a quick fade, once it has started: a dark
   flash instead of a white one on slow starts. (#1)
@@ -41,7 +42,7 @@ All notable changes to Modest Text are listed here, newest first. The format fol
 - Help has a short line for Erase all local data: "To delete all your notes and reset the app:"
   and the button.
 - Help, in English and French, opens with a short warning: in Chrome, Edge and Brave, any HTML file
-  opened from disk can read, change or erase the notes.
+  opened from disk can read, change or erase the notes, with a link to "Where are my notes?".
 
 - ABOUT and SECURITY now say that notes are not private from other pages sharing the browser's
   storage: opened from disk in Chrome, Edge or Brave, any local HTML file can read, change or erase

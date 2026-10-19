@@ -28,6 +28,8 @@
   --c-strong: #7A4A12;
   --c-em: #2C6670;
   --hl-tint: #F3E5C3;
+  --c-code: #9E3B4B;
+  --zebra: rgba(46, 52, 64, 0.06);
   --banner-full-bg: #EBD3D6;
   --banner-ro-bg: #D8DEE9;
   --red: #BF616A;
@@ -66,6 +68,8 @@
   --c-strong: #E9CF9E;
   --c-em: #93C9C4;
   --hl-tint: #46433A;
+  --c-code: #EBA0AA;
+  --zebra: rgba(236, 239, 244, 0.05);
   --banner-full-bg: #5A3D46;
   --banner-ro-bg: #434C5E;
   --dot-red: #FF5A64;
@@ -397,9 +401,11 @@ html.tab-dragging, html.tab-dragging * { cursor: grabbing !important; }
 .mt-c-strong { color: var(--c-strong); }
 .mt-c-em { color: var(--c-em); }
 .cm-editor:not(.mt-md) .mt-c-hl { background: var(--hl-tint); border-radius: 2px; }
+.cm-editor:not(.mt-md) .mt-c-code { color: var(--c-code); }
 /* On the yellow of a Markdown highlight, only the dark text colour reads well: everything in it takes it,
    and a link keeps its underline. */
-.mt-md .mt-highlight { --c-h: #2E3440; --c-strong: #2E3440; --c-em: #2E3440; --link: #2E3440; --link-url: #2E3440; --link-bracket: #2E3440; --link-paren: #2E3440; --link-line: #2E3440; }
+.mt-md .mt-highlight { --c-h: #2E3440; --c-strong: #2E3440; --c-em: #2E3440; --link: #2E3440; --link-url: #2E3440; --link-bracket: #2E3440; --link-paren: #2E3440; --link-line: #4C6EA0;
+  padding-bottom: 3px; } /* the yellow reaches under a link's underline, which would sit on the page below it */
 /* An autolink's address is its text: in a Markdown tab it looks like any link's text. */
 .mt-md .mt-link .mt-link-url, .mt-md .mt-link-url .mt-link, .mt-md .mt-link.mt-link-url { color: var(--link); }
 .mt-md .mt-bullet { color: var(--accent); font-weight: 700; }
@@ -520,13 +526,14 @@ html.tab-dragging, html.tab-dragging * { cursor: grabbing !important; }
 /* ---------- shortcut sheet */
 .keys-dialog { width: min(680px, calc(100vw - 32px)); max-height: calc(100vh - 48px); font-size: 14.5px; }
 .keys-body { overflow-y: auto; max-height: calc(100vh - 170px); }
-.keys-body th { text-align: left; padding: 14px 0 6px; font-size: 15px; }
+.keys-body th { text-align: left; padding: 14px 6px 6px; font-size: 15px; }
 .keys-body tr:first-child th { padding-top: 4px; }
 .keys-body table { border-collapse: collapse; width: 100%; }
-.keys-body td { padding: 3px 8px 3px 0; vertical-align: top; text-wrap: pretty; } /* no word left alone on a line */
+.keys-body td { padding: 3px 6px; vertical-align: top; text-wrap: pretty; }
+.keys-body tr.ks-alt td { background: var(--zebra); } /* every other row, counted afresh in each section */ /* no word left alone on a line */
 .keys-body td:first-child > span { white-space: nowrap; } /* one alternative ("⇧⌘, / ⇧⌘.") never breaks */
 .keys-body .ks-clause { display: inline-block; max-width: 100%; }
-.keys-body td:first-child { width: 38%; }
+.keys-body td:first-child { width: 33%; }
 .keys-body kbd { display: inline-block; margin: 1px 0; white-space: nowrap; font: 13px ui-monospace, Menlo, Consolas, monospace; padding: 1px 5px; border: 1px solid var(--border); border-radius: 3px; background: var(--bg-input); color: var(--text-strong); }
 
 /* Shown by the loader when the browser cannot start the app (too old). */

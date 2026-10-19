@@ -1,6 +1,6 @@
 // Done when #13: one editing window; read-only second window; handover; conflict tab.
 // Every test runs twice: through the Web Lock path and through the forced lease fallback.
-import { test, expect, openFresh, openApp, addTab, docText, setDoc, focusEditorEnd, saveNow, tabNames, storedTabs, clickTab, status, stored } from './helpers.js';
+import { test, expect, download, openFresh, openApp, addTab, docText, setDoc, focusEditorEnd, saveNow, tabNames, storedTabs, clickTab, status, stored } from './helpers.js';
 
 for (const path of ['weblock', 'lease']) {
   test.describe(`13. multiple windows — ${path} path`, () => {
@@ -150,15 +150,21 @@ for (const path of ['weblock', 'lease']) {
       await b.locator('[data-action="erase"]').click();
       await expect(b.locator('#toasts')).toContainText('Another window is editing');
       await expect(b.locator('#erase-dialog')).toBeHidden();
-      // The editing window warns, with Cancel focused; Cancel keeps everything.
+      // The editing window warns, with Export All first as the default, never Erase; each choice says what it did.
       await page.click('#btn-help');
       const erase = page.locator('[data-action="erase"]');
       await expect(erase).toHaveText('Erase all local data…');
       await erase.click();
       await expect(page.locator('#erase-dialog')).toBeVisible();
-      await expect(page.locator('#erase-cancel')).toBeFocused();
+      await expect(page.locator('#erase-export')).toBeFocused();
+      const zip = await download(page, () => page.keyboard.press('Enter'));
+      expect(zip.name).toMatch(/\.zip$/);
+      await expect(page.locator('#erase-dialog')).toBeHidden();
+      await expect(page.locator('#toasts')).toContainText('Your notes were exported to a ZIP file. Nothing was erased.');
+      await erase.click();
       await page.click('#erase-cancel');
       await expect(page.locator('#erase-dialog')).toBeHidden();
+      await expect(page.locator('#toasts')).toContainText('Nothing was erased.');
       expect(Object.keys(await stored(page)).some((k) => k.startsWith('modest-text:v1:tab:'))).toBe(true);
       // Erase: both windows start afresh, on Help, without a "Leave site?" box, and other pages' data stays.
       const boxes = [];
@@ -170,6 +176,8 @@ for (const path of ['weblock', 'lease']) {
         await expect(p.locator('.tab .tab-name')).toHaveText(['Help']);
       }
       expect(boxes).toEqual([]);
+      await expect(page.locator('#toasts')).toContainText('All local data was erased.');
+      await expect(b.locator('#toasts')).not.toContainText('erased'); // only where it was done
       const keys = await page.evaluate(() => Object.keys(localStorage));
       expect(keys.filter((k) => k.startsWith('modest-text:v1:tab:') || k === 'modest-text:v1:settings')).toEqual([]);
       expect(keys).toContain('other-page');

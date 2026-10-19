@@ -96,7 +96,11 @@ test.describe('1. loading', () => {
       return { text: q?.textContent, after: q?.previousElementSibling?.tagName + ' ' + q?.previousElementSibling?.previousElementSibling?.tagName,
         left: page.left - view.left, right: view.right - page.right };
     });
-    expect(top.text).toBe('Chrome, Edge and Brave: any HTML file you open from your disk can read, change or erase these notes. Open only HTML files you trust. Firefox, and a copy on a web address, are not affected.');
+    expect(top.text).toBe('Chrome, Edge and Brave: any HTML file you open from your disk can read, change or erase these notes. Open only HTML files you trust. Firefox, and a copy on a web address, are not affected. More in Where are my notes?');
+    // Its link goes to that section, in the page.
+    await page.locator('.help-page blockquote a').click();
+    await expect.poll(() => page.evaluate(() => { const h = document.getElementById('where-are-my-notes'), v = document.getElementById('help-view');
+      return Math.round(h.getBoundingClientRect().top - v.getBoundingClientRect().top); })).toBeLessThan(40);
     expect(top.after).toBe('P H1');
     expect(top.left).toBeGreaterThan(50);
     expect(Math.abs(top.left - top.right)).toBeLessThan(20); // the scrollbar, if any

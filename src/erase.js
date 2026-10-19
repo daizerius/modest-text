@@ -7,6 +7,7 @@ import { helpView } from './helpview.js';
 import { leaseTimer } from './windows.js';
 
 const dialog = $('erase-dialog');
+const ERASED = 'modest-text:erased'; // in sessionStorage, which erasing leaves alone: the toast after the reload
 
 export function openErase() {
   // Only the editing window may: the other windows write nothing, and erasing under the editor would leave it
@@ -24,10 +25,15 @@ export function eraseAll() {
   // The other windows first, before the lease disappears: one that took over now would save its copy again.
   store.set(K.msg, JSON.stringify({ type: 'erased', from: windowId, n: Math.random() }));
   for (const k of store.ownKeys()) store.remove(k);
+  try { sessionStorage.setItem(ERASED, '1'); } catch { /* no toast then */ }
   location.reload();
 }
 
 helpView.addEventListener('click', (e) => { if (e.target.closest('[data-action="erase"]')) openErase(); });
-$('erase-cancel').addEventListener('click', () => dialog.close());
-$('erase-export').addEventListener('click', exportAll);
+// Each choice says what it did. The safe ones close the warning, so the toast is not under its backdrop.
+$('erase-cancel').addEventListener('click', () => { dialog.close(); toast(t('eraseCancelled')); });
+$('erase-export').addEventListener('click', () => { dialog.close(); if (exportAll()) toast(t('eraseExported')); });
+try {
+  if (sessionStorage.getItem(ERASED)) { sessionStorage.removeItem(ERASED); toast(t('eraseDone')); }
+} catch { /* storage blocked */ }
 $('erase-ok').addEventListener('click', eraseAll);

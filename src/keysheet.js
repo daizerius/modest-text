@@ -99,8 +99,9 @@ function build() {
     h.textContent = t(title);
     hr.append(h);
     table.append(hr);
-    for (const [name, alts] of rows) {
+    rows.forEach(([name, alts], i) => {
       const tr = document.createElement('tr');
+      if (i % 2) tr.className = 'ks-alt';
       const d = document.createElement('td');
       // A long label breaks between its clauses (after ": " and "; "), each kept whole while it fits.
       // `…` in a label is a key, shown as the key column shows it.
@@ -115,7 +116,7 @@ function build() {
       });
       tr.append(keyCell(alts), d);
       table.append(tr);
-    }
+    });
   }
   body.replaceChildren(table);
 }

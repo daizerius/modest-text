@@ -211,6 +211,8 @@ test('punctuation shortcuts are named as this keyboard prints them, and fall bac
   };
 
   let r = await withLayout(LAYOUTS.us);
+  // Every other row is shaded, counted afresh in each section.
+  expect(await page.evaluate(() => [...document.querySelectorAll('#keys-body tr')].slice(0, 6).map((tr) => (tr.querySelector('th') ? 'h' : tr.classList.contains('ks-alt') ? 'b' : 'a')).join(''))).toBe('hab' + 'hab');
   // Keys named in a label are keys too.
   expect(await page.evaluate(() => [...[...document.querySelectorAll('#keys-body td')].find((td) => td.textContent.startsWith('On a tab: lift it'))
     .querySelectorAll('kbd')].map((k) => k.textContent))).toEqual(['←', '→', 'V']);

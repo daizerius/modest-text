@@ -41,6 +41,7 @@ export function exportAll() {
   if (S.role === 'editor') store.set(K.lastExport, String(S.lastExport));
   updateFileTips();
   updateStatus(); // the status bar shows when the last full export ran
+  return true;
 }
 
 export async function importFiles(fileList) {

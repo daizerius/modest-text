@@ -365,11 +365,11 @@ export function livePreview(getT) {
   return plugin;
 }
 
-// Colours, in both modes: headings, bold and italic, subtly; highlight (a tint, in plain-text tabs only:
-// Markdown tabs show the real one); and a link's syntax, so the parts tell apart at a glance: [ ] (and
+// Colours, in both modes: headings, bold and italic, subtly; highlight and inline code (in plain-text tabs
+// only: Markdown tabs show them as they are); and a link's syntax, so the parts tell apart at a glance: [ ] (and
 // < >), ( ), and the address. In a Markdown tab a link's syntax shows only with the cursor in the link
 // (buildDecorations).
-const COLOURS = { Emphasis: 'mt-c-em', StrongEmphasis: 'mt-c-strong', Highlight: 'mt-c-hl' };
+const COLOURS = { Emphasis: 'mt-c-em', StrongEmphasis: 'mt-c-strong', Highlight: 'mt-c-hl', InlineCode: 'mt-c-code' };
 function syntaxColourDecorations(view) {
   const { doc } = view.state;
   const out = [];

@@ -85,6 +85,15 @@ function build(node, doc, parent) {
       else if (c.name === 'URL') url = doc.slice(c.from, c.to);
     }
     const label = marks.length >= 2 ? doc.slice(marks[0].to, marks[1].from) : doc.slice(node.from, node.to);
+    // #name: a section of this page (its heading's id, see slug), scrolled to in the page.
+    if (/^#[a-z0-9-]+$/.test(url)) {
+      const a = el('a');
+      a.href = url;
+      a.textContent = label;
+      a.addEventListener('click', (e) => { e.preventDefault(); helpView.querySelector(url)?.scrollIntoView({ block: 'start' }); });
+      parent.append(a);
+      return;
+    }
     if (!/^https:\/\//.test(url)) { parent.append(label); return; }
     const a = el('a');
     a.href = url;
@@ -104,8 +113,11 @@ function build(node, doc, parent) {
     pos = c.to;
   }
   if (inline && pos < node.to) text(out, doc.slice(pos, node.to));
+  if (/^h[23]$/.test(tag)) out.id = slug(out.textContent);
   if (tag) parent.append(out);
 }
+// A heading's id: its text, without accents or punctuation ("Où sont vos notes ?" -> ou-sont-vos-notes).
+const slug = (s) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
 let shown = ''; // the language the page was built in
 export function renderHelp(force = false) {
