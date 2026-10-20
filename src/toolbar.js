@@ -11,7 +11,7 @@ import { formatStamp } from './text.js';
 import { syncView } from './editor.js';
 import { writeSettings } from './persist.js';
 import { updateFindTips } from './find.js';
-import { focusText } from './helpview.js';
+import { focusText, helpView, updateToggles } from './helpview.js';
 import { addTab, focusTab, modal, refreshHelp, renameTab, renderTabs, reopenClosed, updateRenamePreview } from './tabs.js';
 import { renderBanners, updateAmber, updateStatus } from './statusbar.js';
 
@@ -430,6 +430,14 @@ export function applyLang() {
   const tab = activeTab();
   if (tab) syncView(tab);
 }
+// Help's On/Off buttons: Links, and E-mail links. Markdown tabs pick the change up when they are next shown.
+helpView.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-toggle]');
+  if (!b) return;
+  settings[b.dataset.toggle] = !settings[b.dataset.toggle];
+  writeSettings();
+  updateToggles();
+});
 $('btn-lang').addEventListener('click', () => {
   settings.lang = S.lang === 'fr' ? 'en' : 'fr';
   writeSettings();

@@ -3,7 +3,7 @@
 // Built with DOM calls only (text as text nodes, never HTML).
 import { helpParser } from './markdown.js';
 import { helpText } from './i18n.js';
-import { $, KEYS, S, activeTab, t } from './state.js';
+import { $, KEYS, S, activeTab, settings, t } from './state.js';
 
 export const helpView = $('help-view');
 
@@ -56,11 +56,30 @@ function action(name) {
   return b;
 }
 
+// {toggle:name}: an On/Off button for settings[name] (toolbar.js listens for the click).
+function toggle(name) {
+  const b = el('button', 'btn help-toggle');
+  b.type = 'button';
+  b.dataset.toggle = name;
+  b.setAttribute('aria-label', t(name + 'Toggle'));
+  b.title = t(name + 'Toggle');
+  updateToggle(b);
+  return b;
+}
+function updateToggle(b) {
+  const on = settings[b.dataset.toggle];
+  b.textContent = t(on ? 'toggleOn' : 'toggleOff');
+  b.setAttribute('aria-pressed', String(on));
+  b.disabled = b.dataset.toggle === 'mail' && !settings.links; // e-mail links need links on
+}
+export const updateToggles = () => { for (const b of helpView.querySelectorAll('[data-toggle]')) updateToggle(b); };
+
+const MAKE = { ui, action, toggle };
 function text(parent, s) {
-  const parts = s.replace(/\s*\n\s*/g, ' ').split(/\{(ui|action):([\w-]+)\}/);
+  const parts = s.replace(/\s*\n\s*/g, ' ').split(/\{(ui|action|toggle):([\w-]+)\}/);
   for (let i = 0; i < parts.length; i += 3) {
     if (parts[i]) parent.append(parts[i]);
-    if (i + 2 < parts.length) parent.append(parts[i + 1] === 'ui' ? ui(parts[i + 2]) : action(parts[i + 2]));
+    if (i + 2 < parts.length) parent.append(MAKE[parts[i + 1]](parts[i + 2]));
   }
 }
 

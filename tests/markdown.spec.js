@@ -1,5 +1,5 @@
 // Done when #10 (Markdown security) and #11 (rendering, reveal on cursor line, byte-identical export).
-import { test, expect, openFresh, docText, setDoc, setCursor, download, typeMarkdown } from './helpers.js';
+import { test, expect, openFresh, docText, setDoc, setCursor, download, typeMarkdown, activeName, clickTab, openHelp } from './helpers.js';
 
 const MD = [
   '# Heading 1',
@@ -180,6 +180,8 @@ test('10. raw HTML, img onerror and javascript: links stay inert; images are nev
   await expect(content).toContainText('Image (not loaded): pic');
   expect(await page.locator('.cm-content script, .cm-content img:not(.cm-widgetBuffer), .cm-content img[src], .cm-content iframe, .cm-content a, .cm-content b').count()).toBe(0);
   expect(await page.locator('.mt-link').allTextContents()).toEqual(['ok', 'mail']);
+  // E-mail links are off by default: the written one looks like a link but offers no Cmd/Ctrl+click.
+  await expect(page.locator('.mt-link', { hasText: 'mail' })).not.toHaveAttribute('title', /./);
 
   // Cmd/Ctrl+click on the javascript: link: nothing happens.
   const jsLink = page.locator('.cm-line', { hasText: 'javascript:alert(1)' });
@@ -279,12 +281,50 @@ test('bare addresses are links in Markdown tabs (Cmd/Ctrl+click opens them), and
   expect(await page.locator('.mt-link-url').count()).toBe(0);
   await page.locator('.cm-line').click({ modifiers: ['ControlOrMeta'], position: { x: 60, y: 5 } });
   expect(await page.evaluate(() => window.__opened)).toEqual([]);
-  // Markdown: three links, ending before the trailing punctuation.
+  // Markdown: links, ending before the trailing punctuation; an e-mail address only once turned on in Help.
   await page.click('#btn-md');
   await setCursor(page, doc.length);
-  await expect(page.locator('.mt-link')).toHaveText(['https://example.com/a?b=1', 'www.example.org', 'name@example.com']);
+  await expect(page.locator('.mt-link')).toHaveText(['https://example.com/a?b=1', 'www.example.org']);
   await expect(page.locator('.mt-link').nth(1)).toHaveAttribute('title', /https:\/\/www\.example\.org/);
+  const name = await activeName(page);
+  const toggle = (which) => page.locator(`#help-view [data-toggle="${which}"]`);
+  await openHelp(page);
+  await expect(toggle('links')).toHaveAttribute('aria-pressed', 'true');
+  await expect(toggle('mail')).toHaveAttribute('aria-pressed', 'false');
+  await toggle('mail').click();
+  await expect(toggle('mail')).toHaveAttribute('aria-pressed', 'true');
+  await clickTab(page, name);
+  await expect(page.locator('.mt-link')).toHaveText(['https://example.com/a?b=1', 'www.example.org', 'name@example.com']);
   for (const i of [0, 1, 2]) await page.locator('.mt-link').nth(i).click({ modifiers: ['ControlOrMeta'], position: { x: 3, y: 5 } });
   expect(await page.evaluate(() => window.__opened)).toEqual(['https://example.com/a?b=1', 'https://www.example.org/', 'mailto:name@example.com']);
   expect(await docText(page)).toBe(doc); // the text itself is never rewritten
+  // Links off: they still look like links, written or bare, but none opens or offers to; the E-mail button
+  // waits for Links; both survive a reload.
+  await setDoc(page, doc + '\n\n[written](https://example.com/w)');
+  await openHelp(page);
+  await toggle('links').click();
+  await expect(toggle('mail')).toBeDisabled();
+  await clickTab(page, name);
+  await setCursor(page, 0);
+  await expect(page.locator('.mt-link')).toHaveText(['https://example.com/a?b=1', 'www.example.org', 'name@example.com', 'written']);
+  for (const i of [0, 3]) await expect(page.locator('.mt-link').nth(i)).not.toHaveAttribute('title', /./);
+  await page.locator('.cm-line').last().click({ modifiers: ['ControlOrMeta'], position: { x: 3, y: 5 } });
+  expect((await page.evaluate(() => window.__opened)).length).toBe(3);
+  await page.reload();
+  await openHelp(page);
+  await expect(toggle('links')).toHaveAttribute('aria-pressed', 'false');
+  await expect(toggle('mail')).toHaveAttribute('aria-pressed', 'true');
+});
+
+// A link around a highlight: the link draws the underline, in the accent colour, which the yellow hid.
+test('a link around a highlight is underlined in the blue that reads on the yellow, in both themes', async ({ page, appURL }) => {
+  await openFresh(page, appURL);
+  await page.click('#btn-md');
+  await setDoc(page, 'A [some ==marked== link](https://example.com) here.\n\nx');
+  await setCursor(page, 50);
+  for (const theme of ['light', 'dark']) {
+    await page.evaluate((th) => { document.documentElement.dataset.theme = th; }, theme);
+    expect(await page.locator('.mt-link .mt-highlight').evaluate((e) => [getComputedStyle(e).textDecorationLine, getComputedStyle(e).textDecorationColor]), theme)
+      .toEqual(['underline', 'rgb(11, 87, 208)']);
+  }
 });

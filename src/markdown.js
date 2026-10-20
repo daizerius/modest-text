@@ -47,6 +47,7 @@ export function safeUrl(url) {
 }
 // A bare address, as GFM finds it: www.… opens as https://, name@example.com as mailto:.
 const bareUrl = (s) => safeUrl(/^www\./i.test(s) ? 'https://' + s : /^[\w.+-]+@/.test(s) ? 'mailto:' + s : s);
+const LIVE = { live: () => true, bare: () => true };
 const isBare = (n) => n.name === 'URL' && !/^(Link|Autolink|Image)$/.test(n.parent?.name || '');
 
 class TextWidget extends WidgetType {
@@ -124,7 +125,8 @@ function markerWidth(list, cache) {
 }
 const isList = (n) => n.name === 'BulletList' || n.name === 'OrderedList';
 
-function buildDecorations(view, t) {
+function buildDecorations(view, t, allow) {
+  const linkMark = (url) => Decoration.mark(allow.live(url) ? { class: 'mt-link', attributes: { title: t('linkTip', { url }) } } : { class: 'mt-link' });
   const { state } = view;
   const doc = state.doc;
   const sel = state.selection.ranges;
@@ -214,7 +216,7 @@ function buildDecorations(view, t) {
             const safe = urlNode && safeUrl(url);
             if (!safe || marks.length < 2) return; // unsafe or reference link: leave raw, inert
             const textFrom = marks[0].to, textTo = marks[1].from;
-            add(textFrom, textTo, Decoration.mark({ class: 'mt-link', attributes: { title: t('linkTip', { url: safe }) } }));
+            add(textFrom, textTo, linkMark(safe));
             // Only with the cursor in the link, not anywhere on its line: an address is long, so a line whose links
             // opened whenever the cursor came onto it jumped about as the cursor went in and out of it.
             if (!touches(nf, nt)) {
@@ -228,7 +230,7 @@ function buildDecorations(view, t) {
             const u = n.getChild('URL');
             const safe = u && safeUrl(doc.sliceString(u.from, u.to));
             if (!safe) return false;
-            add(u.from, u.to, Decoration.mark({ class: 'mt-link', attributes: { title: t('linkTip', { url: safe }) } }));
+            add(u.from, u.to, linkMark(safe));
             if (!touches(nf, nt)) {
               add(nf, u.from, hide);
               add(u.to, nt, hide);
@@ -238,7 +240,7 @@ function buildDecorations(view, t) {
           case 'URL': {
             if (!isBare(node.node)) return;
             const safe = bareUrl(doc.sliceString(nf, nt));
-            if (safe) add(nf, nt, Decoration.mark({ class: 'mt-link', attributes: { title: t('linkTip', { url: safe }) } }));
+            if (safe && allow.bare(safe)) add(nf, nt, linkMark(safe));
             return;
           }
           case 'Image': {
@@ -361,12 +363,12 @@ function buildDecorations(view, t) {
   return { decorations: Decoration.set(out, true), atoms: Decoration.set(atoms, true) };
 }
 
-export function livePreview(getT) {
+export function livePreview(getT, allow = LIVE) {
   const plugin = ViewPlugin.fromClass(class {
-    constructor(view) { ({ decorations: this.decorations, atoms: this.atoms } = buildDecorations(view, getT())); }
+    constructor(view) { ({ decorations: this.decorations, atoms: this.atoms } = buildDecorations(view, getT(), allow)); }
     update(u) {
       if (u.docChanged || u.viewportChanged || u.selectionSet || u.focusChanged || syntaxTree(u.startState) !== syntaxTree(u.state) || u.transactions.some((tr) => tr.reconfigured)) {
-        ({ decorations: this.decorations, atoms: this.atoms } = buildDecorations(u.view, getT()));
+        ({ decorations: this.decorations, atoms: this.atoms } = buildDecorations(u.view, getT(), allow));
       }
     }
   }, {
@@ -665,9 +667,11 @@ export const listEditing = Prec.high(keymap.of([
 ]));
 
 // The live preview of Markdown tabs (the Markdown parser itself runs in both modes, see editor.js).
-export function markdownExtensions(getT, openLink) {
+// allow.live(url): whether a link opens (and says so in its tooltip); a link that does not still looks like one.
+// allow.bare(url): whether a bare address is a link at all (e-mail addresses only when turned on).
+export function markdownExtensions(getT, openLink, allow = LIVE) {
   return [
-    livePreview(getT),
+    livePreview(getT, allow),
     EditorView.editorAttributes.of({ class: 'mt-md' }),
     EditorView.domEventHandlers({
       mousedown(e, view) {
@@ -675,7 +679,7 @@ export function markdownExtensions(getT, openLink) {
         const pos = view.posAtCoords({ x: e.clientX, y: e.clientY });
         if (pos == null) return false;
         const url = linkAt(view.state, pos);
-        if (!url) return false;
+        if (!url || !allow.live(url)) return false;
         e.preventDefault();
         openLink(url);
         return true;

@@ -20,7 +20,7 @@ export const cic = window.cancelIdleCallback ? (h) => window.cancelIdleCallback(
 // ---------------------------------------------------------------- state
 // mdFont: font of Markdown text; monoFont: monospace font of plain-text tabs and code;
 // read: the text is laid out as a centred column of readable width.
-export const settings = { theme: null, lang: null, mdFont: null, monoFont: null, size: 16, wrap: true, read: false };
+export const settings = { theme: null, lang: null, mdFont: null, monoFont: null, size: 16, wrap: true, read: false, links: true, mail: false };
 
 // Shared, mutable application state (one object, so that every module sees the same values).
 export const S = {

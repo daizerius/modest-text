@@ -33,7 +33,9 @@ export function openLink(url) {
   a.remove();
 }
 
-export const mdExt = markdownExtensions(() => t, openLink);
+// Links open unless turned off in Help, e-mail links only when turned on there; either way they look like links.
+const mailOk = (url) => settings.mail || !/^mailto:/i.test(url);
+export const mdExt = markdownExtensions(() => t, openLink, { live: (url) => settings.links && mailOk(url), bare: mailOk });
 
 export function insertTab(v) {
   if (v.state.readOnly) return false;

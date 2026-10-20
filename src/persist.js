@@ -263,6 +263,8 @@ export function loadSettings() {
     if (SIZES.some(([, px]) => px === s.size)) settings.size = s.size;
     if (typeof s.wrap === 'boolean') settings.wrap = s.wrap;
     if (typeof s.read === 'boolean') settings.read = s.read;
+    if (typeof s.links === 'boolean') settings.links = s.links;
+    if (typeof s.mail === 'boolean') settings.mail = s.mail;
   } catch { /* keep defaults; the key is not rewritten until a setting changes */ }
 }
 

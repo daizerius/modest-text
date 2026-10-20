@@ -16,12 +16,16 @@ All notable changes to Modest Text are listed here, newest first. The format fol
 
 - The status bar shows "Modest Text" and the version, centred; it is the first thing to go, whole,
   when the bar runs short. (#3)
-- In Markdown tabs, bare addresses are links: `https://…`, `www.…` (opened as https://) and
-  `name@example.com` (as mailto:), ending before trailing punctuation. Plain-text tabs keep them as
-  text. (#11)
+- In Markdown tabs, bare addresses are links: `https://…` and `www.…` (opened as https://), ending
+  before trailing punctuation. Plain-text tabs keep them as text. (#11)
+- Two On/Off buttons in Help, next to the line on links: **Links** (on by default): off, links in Markdown tabs
+  still look like links but do not open; **E-mail addresses as links** (off by default) makes `name@example.com`
+  and `mailto:` links live.
 
 ### Changed
 
+- A link around a highlight keeps a readable underline: the highlight draws it in the same blue as a
+  link inside one, over the accent colour the yellow hid.
 - In Markdown tabs, a link shows its brackets and address only while the cursor is in the link, not
   anywhere on its line, so the line no longer jumps as the cursor moves along it.
 - Tooltips start with the shortcut, in this system's key names and as this keyboard prints them
