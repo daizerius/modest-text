@@ -416,10 +416,16 @@ test('the status bar shows "Modest Text" and the version, centred; it goes first
   expect(g.offCentre).toBeLessThan(1.5);
   expect(g.clearLeft).toBeGreaterThanOrEqual(0); // its own 2ch padding is the clear space
   expect(g.clearRight).toBeGreaterThanOrEqual(0);
-  // Narrow, with long counts: it is gone, whole; the counts it gave way to read in full ("characters").
+  // Narrower and narrower, with long counts: it goes, whole, at some width above the minimum (500 px), and the
+  // counts it gave way to still read in full ("characters"). The width depends on the system's fonts.
   await setDoc(page, 'word '.repeat(30000));
-  await page.setViewportSize({ width: 600, height: 700 });
-  await expect(app).toBeHidden();
+  let gone = 0;
+  for (let w = 1200; w >= 500 && !gone; w -= 20) {
+    await page.setViewportSize({ width: w, height: 700 });
+    await page.evaluate(() => new Promise(requestAnimationFrame));
+    if (await app.isHidden()) gone = w;
+  }
+  expect(gone).toBeGreaterThan(500);
   await expect(page.locator('#st-counts')).toContainText('characters');
   // Wide again: back.
   await page.setViewportSize({ width: 1200, height: 700 });
