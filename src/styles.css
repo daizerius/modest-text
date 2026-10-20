@@ -504,7 +504,9 @@ html.tab-dragging, html.tab-dragging * { cursor: grabbing !important; }
 .toast-text { flex: 1; }
 .toast-close { border: 0; background: none; cursor: pointer; font-size: 14px; padding: 0 4px; line-height: 1.2; border-radius: 3px; }
 .toast-close:hover { background: var(--bg-hover); }
-/* Printing is not supported: the printout only says so (Cmd/Ctrl+P shows a dialog instead). */
+/* Printing is not supported: the printout only says so (Cmd/Ctrl+P shows a dialog instead).
+   .print-dialog, the first of the app's native <dialog>s, is now the look of all of them: the shortcut sheet
+   and Erase all local data use it too. */
 .print-dialog { margin: auto; }
 .print-dialog::backdrop { background: rgba(46, 52, 64, 0.45); }
 .print-dialog p { margin: 0; line-height: 1.45; }
