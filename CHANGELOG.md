@@ -9,18 +9,17 @@ All notable changes to Modest Text are listed here, newest first. The format fol
 ### Added
 
 - **Erase all local data**, at the end of Help's "Where are my notes?": after a warning, whose
-  default is Export All first (never Erase), it deletes every note, closed tab and setting the app keeps in this browser, in
-  every open window of it. Only the editing window can do it. Each choice ends with a short message
-  saying what happened, in the middle of the window; Erase everything says so for a second before it
-  erases. (#2)
-
+  default is Export All first (never Erase), it deletes every note, closed tab and setting the app
+  keeps in this browser, in every open window of it. Only the editing window can do it. Each choice
+  ends with a short message saying what happened, in the middle of the window; Erase everything says
+  so for a second before it erases. (#2)
 - The status bar shows "Modest Text" and the version, centred; it is the first thing to go, whole,
   when the bar runs short. (#3)
 - In Markdown tabs, bare addresses are links: `https://…` and `www.…` (opened as https://), ending
   before trailing punctuation. Plain-text tabs keep them as text. (#11)
-- Two On/Off buttons in Help, next to the line on links: **Links** (on by default): off, links in Markdown tabs
-  still look like links but do not open; **E-mail addresses as links** (off by default) makes `name@example.com`
-  and `mailto:` links live.
+- Two On/Off buttons in Help, under the line on links. **Links**, on by default: turned off, links in
+  Markdown tabs still look like links but do not open. **E-mail addresses as links**, off by default:
+  turned on, `name@example.com` is a link too, and `mailto:` links open.
 
 ### Changed
 
@@ -36,7 +35,8 @@ All notable changes to Modest Text are listed here, newest first. The format fol
   Markdown tabs.
 - Headings, bold and italic are subtly coloured in plain-text and Markdown tabs; in plain-text tabs,
   highlighted text has a soft tint and inline code a colour of its own. In a Markdown highlight, a link
-  reads in the dark text colour instead of light blue on yellow, and its underline, a saturated blue, stays on the yellow; code in a highlight keeps dark text.
+  reads in the dark text colour instead of light blue on yellow, with a saturated blue underline that
+  stays on the yellow; code in a highlight keeps dark text.
 - The shortcut sheet is a little larger and wider, with every other row shaded; a long description
   breaks between its clauses, and keys named in it (moving a tab with `←` / `→`) look like keys.
 - The Help page is centred, as its reading-width tooltip always said.
@@ -45,7 +45,8 @@ All notable changes to Modest Text are listed here, newest first. The format fol
 
 ### Fixed
 
-- Every combination of formats now reads at WCAG AA in both themes, checked by a test over all of them:
+- Every combination of formats now reads at WCAG AA in both themes, checked by a test over all of
+  them:
   - Find matches have solid tints, one text colour and an outline; the current match is dark text on
     amber (in the dark theme it was 3.6:1).
   - Selected text takes the main text colour (syntax colours fell to 1.7–4.4:1 on the selection).
@@ -59,7 +60,6 @@ All notable changes to Modest Text are listed here, newest first. The format fol
 - A second window opened on a new workspace (or reloaded with the first by Erase all local data) shows
   Help, as the first does, instead of an "Untitled 1" tab of its own. Until a note is written, a reload
   opens on Help again.
-
 - Pasting an address into the `https://` placeholder of `⌘K` / `Ctrl+K` no longer nests a second
   link; the address goes in trimmed and the cursor moves past the link. (#15)
 
@@ -69,7 +69,6 @@ All notable changes to Modest Text are listed here, newest first. The format fol
   and the button.
 - Help, in English and French, opens with a short warning: in Chrome, Edge and Brave, any HTML file
   opened from disk can read, change or erase the notes, with a link to "Where are my notes?".
-
 - ABOUT and SECURITY now say that notes are not private from other pages sharing the browser's
   storage: opened from disk in Chrome, Edge or Brave, any local HTML file can read, change or erase
   them. Firefox keeps each file apart. Serving the app from its own address avoids it.
