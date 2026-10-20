@@ -82,8 +82,8 @@ Use a browser profile that has never opened the app, or clear its storage first.
 - [ ] 1.8 Closing Help and reloading does not bring it back. It is not in Export All either.
 
 - [ ] 1.9 Help ends with the version: `Modest Text 1.0.0`.
-- [ ] 1.10 **Firefox** asks once whether the page may store data persistently; allow it. Other browsers decide
-      without asking.
+- [ ] 1.10 **Firefox** asks once whether the page may store data persistently; allow it. Other browsers decide without asking.
+
 ---
 
 ## 2. Top bar
@@ -122,14 +122,15 @@ EN|FR │ Help.
       and clicking the backdrop cancel.
 - [ ] 3.5 Rename cleaning: try `  a / b : c  `, `CON`, `name...`, a 200-character name, and an emoji name.
       Slashes and colons disappear, spaces collapse, `CON` becomes `_CON`, trailing dots go, long names are
-      cut. An empty result is refused with a message.
+      cut to 100 characters. An empty result is refused with a message.
 - [ ] 3.6 Two tabs cannot share a name, ignoring case: renaming one to another's name gives ` (2)`.
 - [ ] 3.7 **Drag** a tab to reorder. The `+` stays last. A drag must **not** activate or rename the tab.
 - [ ] 3.8 `×` closes without asking. Closing the active tab activates its **right** neighbour, or its left
       if there is none. Closing the last one leaves one fresh empty tab.
-- [ ] 3.9 The reopen button (↺, left of the tabs) brings back the last closed tab with its **text, name,
-      mode and position**. Its tooltip names the tab it would reopen. It remembers **3** tabs. It is
-      greyed out when there is nothing to reopen, and it never offers an empty tab or Help.
+- [ ] 3.9 The reopen button (↺, to the right of the tabs) brings back the last closed tab with its **text,
+      name, mode and position**. Its tooltip names the tab it would reopen, and says that only the last
+      **3** closed tabs are kept. It remembers **3** tabs. It is greyed out when there is nothing to reopen,
+      and it never offers an empty tab or Help.
 - [ ] 3.10 With many tabs, the strip **scrolls sideways**; the active tab scrolls into view; long names are
       cut with `…` and the full name is in the tooltip.
 - [ ] 3.12 **Name from the first heading.** In a new tab (still called `Untitled 1`), type `# Project plan`
