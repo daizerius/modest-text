@@ -297,6 +297,19 @@ test('Help ends with the version (from package.json), the license, the author\'s
   await expect(page.locator('#help-view .help-page > p').last()).toHaveText(`Modest Text ${version} · licence MIT · par daizerius · github.com/daizerius/modest-text`);
 });
 
+// Parallel sentences (Import / Export / Export All, Undo / Redo…) start on lines of their own, so that they line up.
+test('Help puts parallel sentences on lines of their own, in both languages', async ({ page, appURL }) => {
+  await openApp(page, appURL); // first launch: Help is open
+  for (const [lang, words] of [['en', ['Import opens', 'Export downloads', 'Export All downloads', 'From the keyboard']],
+    ['fr', ['Importer ouvre', 'Exporter télécharge', 'Tout exporter télécharge', 'Au clavier']]]) {
+    await setLang(page, lang);
+    const li = page.locator('#help-view li', { has: page.locator('[data-icon="import"]') }).first();
+    const lines = await li.evaluate((e) => e.innerText.split('\n').map((l) => l.trim()).filter(Boolean));
+    expect(lines.map((l, i) => l.includes(words[i])), lang).toEqual([true, true, true, true]);
+    expect(await page.locator('#help-view br').count(), lang).toBeGreaterThanOrEqual(9);
+  }
+});
+
 test('the app asks the browser to keep its storage (the notes) persistently, once not already kept', async ({ page, appURL }) => {
   await page.addInitScript(() => {
     window.__persistCalls = 0;

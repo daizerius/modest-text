@@ -434,7 +434,8 @@ export function applyLang() {
 helpView.addEventListener('click', (e) => {
   const b = e.target.closest('[data-toggle]');
   if (!b) return;
-  settings[b.dataset.toggle] = !settings[b.dataset.toggle];
+  const half = e.target.closest('[data-value]');
+  settings[b.dataset.toggle] = half && e.detail ? half.dataset.value === 'on' : !settings[b.dataset.toggle];
   writeSettings();
   updateToggles();
 });

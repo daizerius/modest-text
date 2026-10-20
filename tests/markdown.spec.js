@@ -289,10 +289,16 @@ test('bare addresses are links in Markdown tabs (Cmd/Ctrl+click opens them), and
   const name = await activeName(page);
   const toggle = (which) => page.locator(`#help-view [data-toggle="${which}"]`);
   await openHelp(page);
-  await expect(toggle('links')).toHaveAttribute('aria-pressed', 'true');
-  await expect(toggle('mail')).toHaveAttribute('aria-pressed', 'false');
-  await toggle('mail').click();
-  await expect(toggle('mail')).toHaveAttribute('aria-pressed', 'true');
+  await expect(toggle('links')).toHaveAttribute('aria-checked', 'true');
+  await expect(toggle('mail')).toHaveAttribute('aria-checked', 'false');
+  // A switch showing both words: clicking a word sets that value; Space flips it.
+  await expect(toggle('mail')).toHaveText('OffOn');
+  await toggle('mail').locator('[data-value="off"]').click();
+  await expect(toggle('mail')).toHaveAttribute('aria-checked', 'false');
+  await toggle('mail').focus();
+  await page.keyboard.press('Space');
+  await expect(toggle('mail')).toHaveAttribute('aria-checked', 'true');
+  await expect(toggle('mail').locator('.active')).toHaveText('On');
   await clickTab(page, name);
   await expect(page.locator('.mt-link')).toHaveText(['https://example.com/a?b=1', 'www.example.org', 'name@example.com']);
   for (const i of [0, 1, 2]) await page.locator('.mt-link').nth(i).click({ modifiers: ['ControlOrMeta'], position: { x: 3, y: 5 } });
@@ -302,7 +308,7 @@ test('bare addresses are links in Markdown tabs (Cmd/Ctrl+click opens them), and
   // waits for Links; both survive a reload.
   await setDoc(page, doc + '\n\n[written](https://example.com/w)');
   await openHelp(page);
-  await toggle('links').click();
+  await toggle('links').locator('[data-value="off"]').click();
   await expect(toggle('mail')).toBeDisabled();
   await clickTab(page, name);
   await setCursor(page, 0);
@@ -312,8 +318,8 @@ test('bare addresses are links in Markdown tabs (Cmd/Ctrl+click opens them), and
   expect((await page.evaluate(() => window.__opened)).length).toBe(3);
   await page.reload();
   await openHelp(page);
-  await expect(toggle('links')).toHaveAttribute('aria-pressed', 'false');
-  await expect(toggle('mail')).toHaveAttribute('aria-pressed', 'true');
+  await expect(toggle('links')).toHaveAttribute('aria-checked', 'false');
+  await expect(toggle('mail')).toHaveAttribute('aria-checked', 'true');
 });
 
 // A link around a highlight: the link draws the underline, in the accent colour, which the yellow hid.

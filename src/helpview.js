@@ -56,20 +56,30 @@ function action(name) {
   return b;
 }
 
-// {toggle:name}: an On/Off button for settings[name] (toolbar.js listens for the click).
+// {toggle:name}: an Off|On switch for settings[name], both words shown, the current one filled (toolbar.js
+// listens for the click: on a word, that value; from the keyboard, the other one).
 function toggle(name) {
-  const b = el('button', 'btn help-toggle');
+  const b = el('button', 'help-toggle');
   b.type = 'button';
   b.dataset.toggle = name;
+  b.setAttribute('role', 'switch');
   b.setAttribute('aria-label', t(name + 'Toggle'));
   b.title = t(name + 'Toggle');
+  for (const v of ['off', 'on']) {
+    const half = el('span', 'help-toggle-half');
+    half.dataset.value = v;
+    b.append(half);
+  }
   updateToggle(b);
   return b;
 }
 function updateToggle(b) {
   const on = settings[b.dataset.toggle];
-  b.textContent = t(on ? 'toggleOn' : 'toggleOff');
-  b.setAttribute('aria-pressed', String(on));
+  for (const half of b.children) {
+    half.textContent = t(half.dataset.value === 'on' ? 'toggleOn' : 'toggleOff');
+    half.classList.toggle('active', (half.dataset.value === 'on') === on);
+  }
+  b.setAttribute('aria-checked', String(on));
   b.disabled = b.dataset.toggle === 'mail' && !settings.links; // e-mail links need links on
 }
 export const updateToggles = () => { for (const b of helpView.querySelectorAll('[data-toggle]')) updateToggle(b); };
@@ -95,6 +105,8 @@ function build(node, doc, parent) {
     return;
   }
   if (node.name === 'Escape') { parent.append(doc.slice(node.from + 1, node.to)); return; }
+  // A line ending in \: parallel sentences start on lines of their own, so that they line up.
+  if (node.name === 'HardBreak') { parent.append(el('br')); return; }
   if (node.name === 'URL') { text(parent, doc.slice(node.from, node.to)); return; } // a bare address: Help's links are written out
   // A link: only https, opened in a new tab without passing this page on; built as elements, as text.
   if (node.name === 'Link') {

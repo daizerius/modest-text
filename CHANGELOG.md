@@ -17,9 +17,9 @@ All notable changes to Modest Text are listed here, newest first. The format fol
   when the bar runs short. (#3)
 - In Markdown tabs, bare addresses are links: `https://…` and `www.…` (opened as https://), ending
   before trailing punctuation. Plain-text tabs keep them as text. (#11)
-- Two On/Off buttons in Help, under the line on links. **Links**, on by default: turned off, links in
-  Markdown tabs still look like links but do not open. **E-mail addresses as links**, off by default:
-  turned on, `name@example.com` is a link too, and `mailto:` links open.
+- Two Off|On switches in Help, each on its own line under the line on links. **Links**, on by default:
+  turned off, links in Markdown tabs still look like links but do not open. **Links to e-mail
+  addresses**, off by default: turned on, `name@example.com` is a link too, and `mailto:` links open.
 
 ### Changed
 
@@ -39,7 +39,8 @@ All notable changes to Modest Text are listed here, newest first. The format fol
   stays on the yellow; code in a highlight keeps dark text.
 - The shortcut sheet is a little larger and wider, with every other row shaded; a long description
   breaks between its clauses, and keys named in it (moving a tab with `←` / `→`) look like keys.
-- The Help page is centred, as its reading-width tooltip always said.
+- The Help page is centred, as its reading-width tooltip always said. Parallel sentences (Import,
+  Export and Export All; Undo and Redo…) start on lines of their own, so that they line up.
 - The page opens in the dark theme and turns light, with a quick fade, once it has started: a dark
   flash instead of a white one on slow starts. (#1)
 
