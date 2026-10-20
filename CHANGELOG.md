@@ -23,6 +23,7 @@ All notable changes to Modest Text are listed here, newest first. The format fol
 
 ### Changed
 
+- The reopen button's tooltip says that only the last 3 closed tabs are kept.
 - A link around a highlight keeps a readable underline: the highlight draws it in the same blue as a
   link inside one, over the accent colour the yellow hid.
 - In Markdown tabs, a link shows its brackets and address only while the cursor is in the link, not

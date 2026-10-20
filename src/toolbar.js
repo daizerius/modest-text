@@ -182,7 +182,8 @@ export function updateToolbar() {
   const undoBtn = $('btn-undo-close');
   const last = S.closedStack[S.closedStack.length - 1];
   undoBtn.disabled = !last || S.role !== 'editor';
-  tipWithKey(undoBtn, last ? 'undoCloseName' : 'undoCloseEmpty', 'reopenTabKey', last ? { name: last.name } : undefined);
+  // Only the last 3 closed tabs are kept: said on a line of its own, so that nobody counts on a fourth.
+  tipWithKey(undoBtn, last ? 'undoCloseName' : 'undoCloseEmpty', 'reopenTabKey', last ? { name: last.name } : undefined, '\n' + t('undoCloseKept'));
   const mdBtn = $('btn-md');
   const isMd = !!tab && tab.mode === 'md';
   mdBtn.setAttribute('aria-pressed', String(isMd));
@@ -248,8 +249,8 @@ export function updateFormatBar() {
   renderActiveFormats();
 }
 // Tooltip and accessible name: the shortcut, then the label ("⌘B · Bold").
-function tipWithKey(el, key, shortcut, vars) {
-  const s = SHORTCUTS[shortcut] ? keyTip(t(key, vars), t.key(shortcut)) : t(key, vars);
+function tipWithKey(el, key, shortcut, vars, extra = '') {
+  const s = (SHORTCUTS[shortcut] ? keyTip(t(key, vars), t.key(shortcut)) : t(key, vars)) + extra;
   el.title = s;
   el.setAttribute('aria-label', s);
 }

@@ -80,14 +80,15 @@ test('5. after closing 4 non-empty tabs, ↩️ reopens the last 3 in reverse or
   for (const n of ['T2', 'T4', 'T1', 'T5']) await closeTabByName(page, n);
   expect(await tabNames(page)).toEqual(['T3']);
   await expect(undoBtn).toBeEnabled();
-  await expect(undoBtn).toHaveAttribute('title', / · Reopen “T5”$/);
-  await expect(undoBtn).toHaveAttribute('aria-label', / · Reopen “T5”$/);
+  await expect(undoBtn).toHaveAttribute('title', / · Reopen “T5”\n/);
+  await expect(undoBtn).toHaveAttribute('aria-label', / · Reopen “T5”\n/);
+  await expect(undoBtn).toHaveAttribute('title', /\nOnly the last 3 closed tabs are kept$/); // nobody counts on a fourth
 
   await undoBtn.click();
   expect(await tabNames(page)).toEqual(['T3', 'T5']);
   await expect(page.locator('.tab.active .tab-name')).toHaveText('T5');
   expect(await docText(page)).toBe('t5');
-  await expect(undoBtn).toHaveAttribute('title', / · Reopen “T1”$/);
+  await expect(undoBtn).toHaveAttribute('title', / · Reopen “T1”\n/);
   await undoBtn.click();
   expect(await tabNames(page)).toEqual(['T1', 'T3', 'T5']);
   expect(await docText(page)).toBe('t1');
@@ -96,7 +97,7 @@ test('5. after closing 4 non-empty tabs, ↩️ reopens the last 3 in reverse or
   expect(await docText(page)).toBe('# t4');
   await expect(page.locator('#btn-md')).toHaveAttribute('aria-pressed', 'true');
   await expect(undoBtn).toBeDisabled();
-  await expect(undoBtn).toHaveAttribute('title', / · No closed tab to reopen$/);
+  await expect(undoBtn).toHaveAttribute('title', / · No closed tab to reopen\n/);
 
   // Empty tabs and the Help tab are never added.
   await page.click('#btn-new');
@@ -109,7 +110,7 @@ test('5. after closing 4 non-empty tabs, ↩️ reopens the last 3 in reverse or
   await closeTabByName(page, 'T3');
   await page.reload();
   await expect(page.locator('html[data-ready="1"][data-role="editor"]')).toHaveCount(1);
-  await expect(undoBtn).toHaveAttribute('title', / · Reopen “T3”$/);
+  await expect(undoBtn).toHaveAttribute('title', / · Reopen “T3”\n/);
   await undoBtn.click();
   expect(await tabNames(page)).toEqual(['T1', 'T3', 'T4', 'T5']);
   expect(await docText(page)).toBe('t3');
