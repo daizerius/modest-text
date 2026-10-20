@@ -147,21 +147,21 @@ for (const path of ['weblock', 'lease']) {
       await expect(b.locator('.tab .tab-name')).toHaveText(['Help']);
     });
 
-    test('Erase all local data, from Help, asks first, then empties every window', async ({ page, context, appURL }) => {
+    test('Erase all local data, from the settings, asks first, then empties every window', async ({ page, context, appURL }) => {
       await openFresh(page, appURL);
       await setDoc(page, 'a note');
       await saveNow(page);
       await page.evaluate(() => localStorage.setItem('other-page', 'kept')); // another page's data is not ours
       const b = await context.newPage();
       await openApp(b, appURL, { role: 'readonly' });
-      // A read-only window says why it cannot, and asks nothing.
-      await b.click('#btn-help');
-      await b.locator('[data-action="erase"]').click();
-      await expect(b.locator('#toasts')).toContainText('Another window is editing');
-      await expect(b.locator('#erase-dialog')).toBeHidden();
+      // A read-only window cannot, and says why.
+      await b.click('#btn-prefs');
+      await expect(b.locator('#prefs-erase')).toBeDisabled();
+      await expect(b.locator('#prefs-erase')).toHaveAttribute('title', /Another window is editing/);
+      await b.click('#prefs-ok');
       // The editing window warns, with Export All first as the default, never Erase; each choice says what it did.
-      await page.click('#btn-help');
-      const erase = page.locator('[data-action="erase"]');
+      await page.click('#btn-prefs');
+      const erase = page.locator('#prefs-erase');
       await expect(erase).toHaveText('Erase all local data…');
       await erase.click();
       await expect(page.locator('#erase-dialog')).toBeVisible();
@@ -170,6 +170,7 @@ for (const path of ['weblock', 'lease']) {
       expect(zip.name).toMatch(/\.zip$/);
       await expect(page.locator('#erase-dialog')).toBeHidden();
       await expect(page.locator('#save-flash')).toContainText('Your notes were exported to a ZIP file. Nothing was erased.');
+      await page.click('#btn-prefs');
       await erase.click();
       await page.click('#erase-cancel');
       await expect(page.locator('#erase-dialog')).toBeHidden();
@@ -178,6 +179,7 @@ for (const path of ['weblock', 'lease']) {
       // Erase: both windows start afresh, on Help, without a "Leave site?" box, and other pages' data stays.
       const boxes = [];
       page.on('dialog', (d) => boxes.push(d.type()));
+      await page.click('#btn-prefs');
       await erase.click();
       const t0 = Date.now();
       await Promise.all([page.waitForEvent('load'), b.waitForEvent('load'), page.click('#erase-ok')

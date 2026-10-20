@@ -281,14 +281,14 @@ test('bare addresses are links in Markdown tabs (Cmd/Ctrl+click opens them), and
   expect(await page.locator('.mt-link-url').count()).toBe(0);
   await page.locator('.cm-line').click({ modifiers: ['ControlOrMeta'], position: { x: 60, y: 5 } });
   expect(await page.evaluate(() => window.__opened)).toEqual([]);
-  // Markdown: links, ending before the trailing punctuation; an e-mail address only once turned on in Help.
+  // Markdown: links, ending before the trailing punctuation; an e-mail address only once turned on in the settings.
   await page.click('#btn-md');
   await setCursor(page, doc.length);
   await expect(page.locator('.mt-link')).toHaveText(['https://example.com/a?b=1', 'www.example.org']);
   await expect(page.locator('.mt-link').nth(1)).toHaveAttribute('title', /https:\/\/www\.example\.org/);
   const name = await activeName(page);
-  const toggle = (which) => page.locator(`#help-view [data-toggle="${which}"]`);
-  await openHelp(page);
+  const toggle = (which) => page.locator(`#prefs-dialog [data-toggle="${which}"]`);
+  await page.click('#btn-prefs');
   await expect(toggle('links')).toHaveAttribute('aria-checked', 'true');
   await expect(toggle('mail')).toHaveAttribute('aria-checked', 'false');
   // A switch showing both words: clicking a word sets that value; Space flips it.
@@ -299,6 +299,7 @@ test('bare addresses are links in Markdown tabs (Cmd/Ctrl+click opens them), and
   await page.keyboard.press('Space');
   await expect(toggle('mail')).toHaveAttribute('aria-checked', 'true');
   await expect(toggle('mail').locator('.active')).toHaveText('On');
+  await page.click('#prefs-ok');
   await clickTab(page, name);
   await expect(page.locator('.mt-link')).toHaveText(['https://example.com/a?b=1', 'www.example.org', 'name@example.com']);
   for (const i of [0, 1, 2]) await page.locator('.mt-link').nth(i).click({ modifiers: ['ControlOrMeta'], position: { x: 3, y: 5 } });
@@ -307,9 +308,10 @@ test('bare addresses are links in Markdown tabs (Cmd/Ctrl+click opens them), and
   // Links off: they still look like links, written or bare, but none opens or offers to; the E-mail button
   // waits for Links; both survive a reload.
   await setDoc(page, doc + '\n\n[written](https://example.com/w)');
-  await openHelp(page);
+  await page.click('#btn-prefs');
   await toggle('links').locator('[data-value="off"]').click();
   await expect(toggle('mail')).toBeDisabled();
+  await page.click('#prefs-ok');
   await clickTab(page, name);
   await setCursor(page, 0);
   await expect(page.locator('.mt-link')).toHaveText(['https://example.com/a?b=1', 'www.example.org', 'name@example.com', 'written']);
@@ -317,7 +319,8 @@ test('bare addresses are links in Markdown tabs (Cmd/Ctrl+click opens them), and
   await page.locator('.cm-line').last().click({ modifiers: ['ControlOrMeta'], position: { x: 3, y: 5 } });
   expect((await page.evaluate(() => window.__opened)).length).toBe(3);
   await page.reload();
-  await openHelp(page);
+  await expect(page.locator('html[data-ready="1"]')).toHaveCount(1);
+  await page.click('#btn-prefs');
   await expect(toggle('links')).toHaveAttribute('aria-checked', 'false');
   await expect(toggle('mail')).toHaveAttribute('aria-checked', 'true');
 });

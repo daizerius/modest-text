@@ -16,6 +16,7 @@ function sections(mac) {
       // Off a Mac, Ctrl+Shift+I is also the browsers' developer tools; the app claims it (main.js).
       ['helpTip', [['=F1'], ['help']]],
       ['ksSheet', [['keys']]],
+      ['ksPrefs', [['prefs']]],
     ]],
     ['ksMove', [
       ['ksBars', [['bars']]],

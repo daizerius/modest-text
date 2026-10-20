@@ -6,6 +6,27 @@ All notable changes to Modest Text are listed here, newest first. The format fol
 
 ## [Unreleased]
 
+### Added
+
+- A settings panel (#6): the sliders button in the top bar, or `⌥⌘,` on a Mac and `Alt+,` elsewhere. It holds
+  every setting, applied and saved at once: theme, language, fonts, size, wrap, reading width, and the two link
+  switches. It also shows your data: the space your notes take, whether the browser keeps them when disk space
+  runs low, the last Export All, and Erase all local data.
+- The theme can follow the system again: choose "Same as the system" in the settings.
+- Plain names for exported files (#16), an option in the settings: `Notes de réunion 2.md` is exported as
+  `notes-de-reunion-2.md`. The tab keeps its name.
+
+### Changed
+
+- Help no longer has the link switches and the Erase button: they are in the settings, and Help points there.
+
+### Fixed
+
+- A setting changed in a read-only window now reaches the editing window and stays. Before, the editing window
+  wrote its own copy back over it.
+- A tab named after its first heading kept following it only until the page was reloaded, or the tab closed and
+  reopened after a reload.
+
 ## [1.1.0] — 2026-10-20
 
 ### Added

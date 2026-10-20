@@ -1,7 +1,7 @@
 // Saving to and loading from browser storage (autosave, revisions, conflicts, headroom probe).
 import { uniqueName, withSuffix, nextDefaultName } from './text.js';
 import { K, PROBE_CHARS, TAB_PREFIX, store } from './storage.js';
-import { S, SIZES, activeTab, cic, names, ric, settings, t, textOf } from './state.js';
+import { S, SIZES, activeTab, cic, names, ric, settings, t, textOf, timeFromId } from './state.js';
 import { makeTab, replaceTabContent, syncView } from './editor.js';
 import { renderTabs, showTab } from './tabs.js';
 import { renderBanners, toast, updateAmber, updateStatus } from './statusbar.js';
@@ -44,7 +44,7 @@ export function saveTab(tab) {
   }
   const rev = tab.rev + 1;
   const now = Date.now();
-  const value = JSON.stringify({ rev, name: tab.name, mode: tab.mode, saved: now, content: textOf(tab), auto: tab.auto, def: tab.defaultName });
+  const value = JSON.stringify({ rev, name: tab.name, mode: tab.mode, saved: now, created: tab.created, content: textOf(tab), auto: tab.auto, def: tab.defaultName });
   const r = store.set(key, value);
   if (r.ok) {
     tab.rev = rev;
@@ -71,8 +71,10 @@ export function writeIndex() {
   if (!r.ok && r.quota && !S.full) { S.full = true; renderBanners(); }
 }
 
+// Any window may: the editing window takes up a change made in a read-only one (windows.js), so that a setting
+// changed there sticks instead of being overwritten by the editor's copy.
 export function writeSettings() {
-  if (S.role !== 'editor') return;
+  if (S.role === 'erased') return;
   store.set(K.settings, JSON.stringify(settings));
 }
 
@@ -112,7 +114,7 @@ export function loadScroll() {
 
 export function writeClosed() {
   if (S.role !== 'editor' || S.full) return; // while full, the stack stays in memory only
-  store.set(K.closed, JSON.stringify(S.closedStack.map(({ name, mode, content, pos, auto, def }) => ({ name, mode, content, pos, auto, def }))));
+  store.set(K.closed, JSON.stringify(S.closedStack.map(({ name, mode, content, pos, auto, def, created }) => ({ name, mode, content, pos, auto, def, created }))));
 }
 
 export function flushDirty() {
@@ -208,7 +210,11 @@ export function validRecord(r) {
     name: r.name || 'Untitled',
     mode: r.mode === 'md' ? 'md' : 'plain',
     saved: Number.isFinite(r.saved) ? r.saved : null,
+    created: Number.isFinite(r.created) ? r.created : null,
     content: r.content,
+    // Name from the first heading, and the name to go back to: kept here, or a reload ended both.
+    auto: r.auto === true,
+    def: typeof r.def === 'string' ? r.def : null,
   };
 }
 
@@ -246,7 +252,8 @@ export function loadWorkspace() {
 }
 
 export function tabFromRecord(id, rec) {
-  const tab = makeTab({ id, name: rec.name, mode: rec.mode, content: rec.content, rev: rec.rev, savedAt: rec.saved, auto: rec.auto === true });
+  const created = rec.created ?? timeFromId(id) ?? rec.saved ?? Date.now();
+  const tab = makeTab({ id, name: rec.name, mode: rec.mode, content: rec.content, rev: rec.rev, savedAt: rec.saved, auto: rec.auto === true, created });
   if (typeof rec.def === 'string' && rec.def) tab.defaultName = rec.def; // the name to go back to with no heading
   return tab;
 }
@@ -256,15 +263,18 @@ export function loadSettings() {
   if (r.error || r.value == null) return;
   try {
     const s = JSON.parse(r.value);
-    if (s.theme === 'dark' || s.theme === 'light') settings.theme = s.theme;
-    if (s.lang === 'en' || s.lang === 'fr') settings.lang = s.lang;
-    if (typeof s.mdFont === 'string') settings.mdFont = s.mdFont;
-    if (typeof s.monoFont === 'string') settings.monoFont = s.monoFont;
+    // null is a value of its own (the system's theme, the browser's language, the default font), which another
+    // window may have chosen since: it replaces what this window had.
+    settings.theme = s.theme === 'dark' || s.theme === 'light' ? s.theme : null;
+    settings.lang = s.lang === 'en' || s.lang === 'fr' ? s.lang : null;
+    settings.mdFont = typeof s.mdFont === 'string' ? s.mdFont : null;
+    settings.monoFont = typeof s.monoFont === 'string' ? s.monoFont : null;
     if (SIZES.some(([, px]) => px === s.size)) settings.size = s.size;
     if (typeof s.wrap === 'boolean') settings.wrap = s.wrap;
     if (typeof s.read === 'boolean') settings.read = s.read;
     if (typeof s.links === 'boolean') settings.links = s.links;
     if (typeof s.mail === 'boolean') settings.mail = s.mail;
+    if (typeof s.plainNames === 'boolean') settings.plainNames = s.plainNames;
   } catch { /* keep defaults; the key is not rewritten until a setting changes */ }
 }
 
@@ -275,7 +285,8 @@ export function loadClosed() {
     const v = JSON.parse(r.value);
     if (Array.isArray(v)) {
       S.closedStack = v.filter((e) => e && typeof e.content === 'string' && typeof e.name === 'string').slice(-3)
-        .map((e) => ({ name: e.name, mode: e.mode === 'md' ? 'md' : 'plain', content: e.content, pos: Number(e.pos) || 0 }));
+        .map((e) => ({ name: e.name, mode: e.mode === 'md' ? 'md' : 'plain', content: e.content, pos: Number(e.pos) || 0,
+          auto: e.auto === true, def: typeof e.def === 'string' ? e.def : null, created: Number.isFinite(e.created) ? e.created : undefined }));
     }
   } catch { /* ignore */ }
 }

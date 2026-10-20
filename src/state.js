@@ -13,6 +13,13 @@ export const KEYS = isMac ? { mod: '⌘', alt: '⌥', mac: true } : { mod: 'Ctrl
 export const $ = (id) => document.getElementById(id);
 export const html = document.documentElement;
 export const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+// When a tab saved before tabs recorded it was created: its id starts with that time (newId). Only a time in a
+// sensible range counts; otherwise null.
+export function timeFromId(id) {
+  const m = /^([0-9a-z]{6,})[0-9a-z]{6}$/.exec(id);
+  const n = m ? parseInt(m[1], 36) : NaN;
+  return n > Date.UTC(2020, 0) && n < Date.now() + 864e5 ? n : null;
+}
 export const windowId = newId();
 export const ric = window.requestIdleCallback ? (f) => window.requestIdleCallback(f, { timeout: 1000 }) : (f) => setTimeout(f, 1);
 export const cic = window.cancelIdleCallback ? (h) => window.cancelIdleCallback(h) : (h) => clearTimeout(h);
@@ -20,7 +27,7 @@ export const cic = window.cancelIdleCallback ? (h) => window.cancelIdleCallback(
 // ---------------------------------------------------------------- state
 // mdFont: font of Markdown text; monoFont: monospace font of plain-text tabs and code;
 // read: the text is laid out as a centred column of readable width.
-export const settings = { theme: null, lang: null, mdFont: null, monoFont: null, size: 16, wrap: true, read: false, links: true, mail: false };
+export const settings = { theme: null, lang: null, mdFont: null, monoFont: null, size: 16, wrap: true, read: false, links: true, mail: false, plainNames: false };
 
 // Shared, mutable application state (one object, so that every module sees the same values).
 export const S = {

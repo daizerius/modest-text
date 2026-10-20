@@ -34,6 +34,7 @@
     <button type="button" id="btn-theme" class="icon-btn"><svg class="icon" data-icon="light" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4.6"/><path d="M12 3.9v-.5M12 20.1v.5M3.9 12h-.5M20.1 12h.5M6.3 6.3l-.4-.4M17.7 17.7l.4.4M6.3 17.7l-.4.4M17.7 6.3l.4-.4"/></svg><svg class="icon" data-icon="dark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19.2 14.25A7.2 7.2 0 1 1 9.75 4.8a5.85 5.85 0 0 0 9.45 9.45z"/></svg></button>
     <button type="button" id="btn-lang" class="icon-pair lang-pair"><span class="pair-half" data-lang="en">EN</span><span class="pair-sep" aria-hidden="true"></span><span class="pair-half" data-lang="fr">FR</span></button>
     <span class="bar-sep" aria-hidden="true"></span>
+    <button type="button" id="btn-prefs" class="icon-btn"><svg class="icon" data-icon="prefs" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg></button>
     <button type="button" id="btn-help" class="icon-btn"><svg class="icon" data-icon="help" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.2a2.6 2.6 0 0 1 5 .8c0 1.8-2.5 2.2-2.5 3.8"/><path d="M12 17h.01"/></svg></button>
   </div>
 </header>
@@ -149,6 +150,11 @@
     <button type="button" id="erase-cancel" class="btn" data-i18n="cancel" data-i18n-tip="cancel">Cancel</button>
     <button type="button" id="erase-export" class="btn btn-primary" data-i18n="eraseExportFirst" data-i18n-tip="eraseExportFirst" autofocus>Export All first</button>
   </div>
+</dialog>
+<dialog id="prefs-dialog" class="print-dialog prefs-dialog" aria-labelledby="prefs-title">
+  <h2 id="prefs-title" data-i18n="prefsTitle">Settings</h2>
+  <div id="prefs-body" class="prefs-body"></div>
+  <div class="modal-buttons"><button type="button" id="prefs-ok" class="btn btn-primary" data-i18n="prefsClose" data-i18n-tip="prefsClose">Close</button></div>
 </dialog>
 <div id="drop-overlay" class="drop-overlay" hidden><span data-i18n="dropHint">Drop .txt or .md files to import them</span></div>
 <script>__SCRIPT__</script>

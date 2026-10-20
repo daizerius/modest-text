@@ -33,7 +33,7 @@ export function openLink(url) {
   a.remove();
 }
 
-// Links open unless turned off in Help, e-mail links only when turned on there; either way they look like links.
+// Links open unless turned off in the settings, e-mail links only when turned on there; either way they look like links.
 const mailOk = (url) => settings.mail || !/^mailto:/i.test(url);
 export const mdExt = markdownExtensions(() => t, openLink, { live: (url) => settings.links && mailOk(url), bare: mailOk });
 
@@ -194,8 +194,8 @@ export function createState(tab, content) {
 
 // `auto`: the tab still carries the name it was given automatically, so a first heading in its text may
 // rename it (see autoName in tabs.js). A rename by hand, or an import, turns it off for good.
-export function makeTab({ id = newId(), name, mode = 'plain', content = '', state = null, rev = 0, savedAt = null, help = false, auto = false }) {
-  const tab = { id, name, mode, rev, savedAt, help, auto, defaultName: name, dirty: false, failed: false, scrollTop: 0, scrollLeft: 0 };
+export function makeTab({ id = newId(), name, mode = 'plain', content = '', state = null, rev = 0, savedAt = null, help = false, auto = false, created = Date.now() }) {
+  const tab = { id, name, mode, rev, savedAt, help, auto, created, defaultName: name, dirty: false, failed: false, scrollTop: 0, scrollLeft: 0 };
   tab.state = state || createState(tab, content);
   return tab;
 }

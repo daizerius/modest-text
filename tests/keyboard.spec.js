@@ -212,7 +212,7 @@ test('punctuation shortcuts are named as this keyboard prints them, and fall bac
 
   let r = await withLayout(LAYOUTS.us);
   // Every other row is shaded, counted afresh in each section.
-  expect(await page.evaluate(() => [...document.querySelectorAll('#keys-body tr')].slice(0, 6).map((tr) => (tr.querySelector('th') ? 'h' : tr.classList.contains('ks-alt') ? 'b' : 'a')).join(''))).toBe('hab' + 'hab');
+  expect(await page.evaluate(() => [...document.querySelectorAll('#keys-body tr')].slice(0, 7).map((tr) => (tr.querySelector('th') ? 'h' : tr.classList.contains('ks-alt') ? 'b' : 'a')).join(''))).toBe('haba' + 'hab');
   // Keys named in a label are keys too.
   expect(await page.evaluate(() => [...[...document.querySelectorAll('#keys-body td')].find((td) => td.textContent.startsWith('On a tab: lift it'))
     .querySelectorAll('kbd')].map((k) => k.textContent))).toEqual(['←', '→', 'V']);
@@ -248,8 +248,8 @@ test('↑ from the tabs reaches the top bar: ← → go through its controls, �
   await page.keyboard.press('ArrowUp');
   expect(await at(page)).toBe('font-btn');
   const seen = [];
-  for (let i = 0; i < 10; i++) { seen.push(await at(page)); await page.keyboard.press('ArrowRight'); }
-  expect(seen).toEqual(['font-btn', 'size-select', 'btn-wrap', 'btn-readwidth', 'btn-import', 'btn-export', 'btn-export-all', 'btn-theme', 'btn-lang', 'btn-help']);
+  for (let i = 0; i < 11; i++) { seen.push(await at(page)); await page.keyboard.press('ArrowRight'); }
+  expect(seen).toEqual(['font-btn', 'size-select', 'btn-wrap', 'btn-readwidth', 'btn-import', 'btn-export', 'btn-export-all', 'btn-theme', 'btn-lang', 'btn-prefs', 'btn-help']);
   expect(await at(page)).toBe('font-btn'); // wraps around
   await page.keyboard.press('ArrowLeft');
   expect(await at(page)).toBe('btn-help');

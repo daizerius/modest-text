@@ -11,7 +11,8 @@ import { formatStamp } from './text.js';
 import { syncView } from './editor.js';
 import { writeSettings } from './persist.js';
 import { updateFindTips } from './find.js';
-import { focusText, helpView, updateToggles } from './helpview.js';
+import { focusText } from './helpview.js';
+import { updatePrefs, updateToggles } from './prefs.js';
 import { addTab, focusTab, modal, refreshHelp, renameTab, renderTabs, reopenClosed, updateRenamePreview } from './tabs.js';
 import { renderBanners, updateAmber, updateStatus } from './statusbar.js';
 
@@ -214,6 +215,7 @@ export function updateToolbar() {
   setTip(langBtn, S.lang === 'fr' ? 'langTipFr' : 'langTipEn');
   sizeSel.value = String(settings.size);
   updateFormatBar();
+  updatePrefs();
   scheduleFit();
 }
 
@@ -323,7 +325,7 @@ export function toggleBars() {
 
 // Top bar with the keyboard: ← → move between its controls, Home / End to the first / last, ↓ goes to the
 // tabs; on the size field, Enter or Space opens its list (the arrows move between controls there too).
-const topItems = () => [fontBtn, sizeSel, wrapBtn, readBtn, $('btn-import'), $('btn-export'), $('btn-export-all'), $('btn-theme'), $('btn-lang'), $('btn-help')]
+const topItems = () => [fontBtn, sizeSel, wrapBtn, readBtn, $('btn-import'), $('btn-export'), $('btn-export-all'), $('btn-theme'), $('btn-lang'), $('btn-prefs'), $('btn-help')]
   .filter((e) => !e.disabled);
 let topCurrent = null;
 export function focusTopBar() {
@@ -406,6 +408,7 @@ export function updateFileTips() {
   $('btn-help').title = help;
   $('btn-help').setAttribute('aria-label', help);
   tip('btn-import', 'importTip', 'importKey');
+  tip('btn-prefs', 'prefsTip', 'prefs');
   tip('btn-export', 'exportTip', 'exportKey');
   const last = S.lastExport ? t('lastExport', { when: formatStamp(new Date(S.lastExport), ' ∙ ', 1) }) : t('lastExportNever');
   tip('btn-export-all', 'exportAllTip', 'exportAllKey', `\n${last}`);
@@ -431,14 +434,17 @@ export function applyLang() {
   const tab = activeTab();
   if (tab) syncView(tab);
 }
-// Help's On/Off buttons: Links, and E-mail links. Markdown tabs pick the change up when they are next shown.
-helpView.addEventListener('click', (e) => {
-  const b = e.target.closest('[data-toggle]');
-  if (!b) return;
+// The settings panel's Off|On switches. Markdown tabs pick a link change up when they are next shown.
+document.addEventListener('click', (e) => {
+  const b = e.target instanceof Element && e.target.closest('.switch[data-toggle]');
+  if (!b || b.disabled) return;
   const half = e.target.closest('[data-value]');
   settings[b.dataset.toggle] = half && e.detail ? half.dataset.value === 'on' : !settings[b.dataset.toggle];
   writeSettings();
   updateToggles();
+  const tab = activeTab();
+  if (tab) syncView(tab); // wrap
+  updateToolbar();
 });
 $('btn-lang').addEventListener('click', () => {
   settings.lang = S.lang === 'fr' ? 'en' : 'fr';

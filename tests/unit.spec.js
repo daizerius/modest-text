@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test, expect } from '@playwright/test';
 import {
-  cleanText, cleanName, uniqueName, withSuffix, nextDefaultName, exportFileName, dedupeFileNames, countText, decodeBytes, prepareImport, formatStamp, zipStamp,
+  cleanText, cleanName, uniqueName, withSuffix, nextDefaultName, exportFileName, plainFileName, dedupeFileNames, countText, decodeBytes, prepareImport, formatStamp, zipStamp,
 } from '../src/text.js';
 import { makeZip, crc32 } from '../src/zip.js';
 const PY = process.platform === 'win32' ? 'python' : 'python3'; // the Python 3 command
@@ -53,6 +53,22 @@ test('export file names', () => {
   expect(exportFileName('a.txt', true)).toBe('a.txt');
   expect(exportFileName('a.markdown', true)).toBe('a.markdown.md');
   expect(dedupeFileNames(['a.txt', 'A.txt', 'b.md', 'a.txt'])).toEqual(['a.txt', 'A (2).txt', 'b.md', 'a (3).txt']);
+});
+
+// #16: plain export names, an option in the settings.
+test('plain export file names', () => {
+  const created = new Date(2026, 9, 21, 9, 5, 7).getTime(); // local time, as the ZIP's stamp
+  expect(plainFileName('Notes de réunion 2', false, created)).toBe('notes-de-reunion-2.txt');
+  expect(plainFileName('Notes de réunion 2', true, created)).toBe('notes-de-reunion-2.md');
+  expect(plainFileName('Résumé', true, created)).toBe('resume.md'); // accents become letters, never dropped
+  expect(plainFileName('Cœur & Straße, Ærø — Łódź', false, created)).toBe('coeur-straße-aero-lodz.txt'.replace('ß', 'ss'));
+  expect(plainFileName('  --Hello,   World!!--  ', false, created)).toBe('hello-world.txt'); // runs collapse, no hyphen at the ends
+  expect(plainFileName('Plan.MD', false, created)).toBe('plan.md'); // the extension kept, in lower case
+  expect(plainFileName('report.pdf', true, created)).toBe('report-pdf.md');
+  expect(plainFileName('日本語', false, created)).toBe('note-20261021-090507.txt'); // nothing left: the creation time
+  expect(plainFileName('😀 🎉', true, created)).toBe('note-20261021-090507.md');
+  expect(plainFileName('_CON', false, created)).toBe('note-con.txt'); // a Windows device name
+  expect(dedupeFileNames(['resume.md', 'resume.md', 'a.txt', 'resume.md'], true)).toEqual(['resume.md', 'resume-2.md', 'a.txt', 'resume-3.md']);
 });
 
 test('counts: lines = breaks + 1, words = runs of non-whitespace, characters = code points', () => {

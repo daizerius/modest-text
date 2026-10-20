@@ -3,7 +3,6 @@ import { K, store } from './storage.js';
 import { $, S, html, t, windowId } from './state.js';
 import { exportAll } from './io.js';
 import { toast, flash } from './statusbar.js';
-import { helpView } from './helpview.js';
 import { leaseTimer } from './windows.js';
 
 const dialog = $('erase-dialog');
@@ -38,7 +37,6 @@ function eraseNow() {
   location.reload();
 }
 
-helpView.addEventListener('click', (e) => { if (e.target.closest('[data-action="erase"]')) openErase(); });
 // Each choice says what it did. The safe ones close the warning, so the toast is not under its backdrop.
 $('erase-cancel').addEventListener('click', () => { dialog.close(); said(t('eraseCancelled')); });
 $('erase-export').addEventListener('click', () => { dialog.close(); if (exportAll()) said(t('eraseExported')); });

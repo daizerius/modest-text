@@ -78,7 +78,7 @@ test.describe('1. loading', () => {
     await expect(page.locator('#st-dot')).toBeHidden();
     await expect(page.locator('#st-counts')).toHaveText('');
     const text = await docText(page);
-    for (const s of ['only in this browser, on this computer', 'moving or renaming it', '~5 MB', 'To delete all your notes and reset the app: {action:erase}',
+    for (const s of ['only in this browser, on this computer', 'moving or renaming it', '~5 MB', 'To delete all your notes and reset the app: **Erase all local data…** in {ui:prefs} **Settings**.',
       'web-hosted copy', 'Private windows', 'clear data on exit', 'unzip it, then import all the files at once', 'Amber', 'Red', process.platform === 'darwin' ? '⌘S' : 'Ctrl+S']) {
       expect(text).toContain(s);
     }

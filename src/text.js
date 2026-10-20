@@ -61,15 +61,30 @@ export function exportFileName(name, markdown) {
 }
 
 
-export function dedupeFileNames(names) {
+// Plain names follow their own style: "notes-2.md", not "notes (2).md".
+export function dedupeFileNames(names, plain = false) {
   const used = new Set();
   return names.map((n) => {
     let out = n;
     const m = /^(.*?)(\.[^.]*)?$/.exec(n);
-    for (let i = 2; used.has(out.toLowerCase()); i++) out = `${m[1]} (${i})${m[2] || ''}`;
+    for (let i = 2; used.has(out.toLowerCase()); i++) out = plain ? `${m[1]}-${i}${m[2] || ''}` : `${m[1]} (${i})${m[2] || ''}`;
     used.add(out.toLowerCase());
     return out;
   });
+}
+
+// Plain export names, an option in the settings: "Notes de réunion 2.md" -> "notes-de-reunion-2.md". Only the file
+// is named so; the tab keeps its name. Accents become plain letters (decomposed, the marks dropped: "résumé" is
+// "resume", not "rsum"); the letters that do not decompose are spelled out. A name with nothing left (all CJK,
+// Cyrillic, emoji…) becomes the tab's creation time, in the order of the Export All ZIP's stamp.
+const SPELLED = { æ: 'ae', œ: 'oe', ß: 'ss', ø: 'o', đ: 'd', ð: 'd', ł: 'l', þ: 'th', ı: 'i' };
+export function plainFileName(name, markdown, created) {
+  const [, stem, ext] = /^(.*?)(\.(?:txt|md))?$/i.exec(name);
+  let base = stem.toLowerCase().normalize('NFKD').replace(/\p{M}/gu, '').replace(/[æœßøđðłþı]/g, (c) => SPELLED[c])
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  if (!base) base = 'note-' + zipStamp(new Date(created)).replace('_', '-');
+  else if (RESERVED.test(base)) base = 'note-' + base; // "con.md" would be a device name on Windows
+  return base + (ext ? ext.toLowerCase() : markdown ? '.md' : '.txt');
 }
 
 // Counts on the source text.

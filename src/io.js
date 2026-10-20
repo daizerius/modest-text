@@ -1,8 +1,8 @@
 // Export, Export All (ZIP) and Import (picker and drag-and-drop).
-import { cleanName, uniqueName, nextDefaultName, exportFileName, dedupeFileNames, prepareImport, zipStamp, MAX_IMPORT_BYTES } from './text.js';
+import { cleanName, uniqueName, nextDefaultName, exportFileName, plainFileName, dedupeFileNames, prepareImport, zipStamp, MAX_IMPORT_BYTES } from './text.js';
 import { makeZip } from './zip.js';
 import { K, WARN_CHARS, store } from './storage.js';
-import { $, S, activeTab, names, t, textOf } from './state.js';
+import { $, S, activeTab, names, settings, t, textOf } from './state.js';
 import { makeTab } from './editor.js';
 import { fits, saveTab, writeIndex } from './persist.js';
 import { activate, autoName, renderTabs } from './tabs.js';
@@ -25,15 +25,16 @@ export function exportActive() {
   const tab = activeTab();
   if (!tab) return;
   autoName(tab); // a heading typed less than a pause ago names the file too
-  download(new Blob([new TextEncoder().encode(textOf(tab))], { type: 'application/octet-stream' }), exportFileName(tab.name, tab.mode === 'md'));
+  download(new Blob([new TextEncoder().encode(textOf(tab))], { type: 'application/octet-stream' }), fileName(tab));
 }
+const fileName = (tab) => (settings.plainNames ? plainFileName : exportFileName)(tab.name, tab.mode === 'md', tab.created);
 
 export function exportAll() {
   S.tabs.forEach(autoName);
   const list = S.tabs.filter((x) => !x.help).map((x) => ({ tab: x, text: textOf(x) })).filter((x) => x.text !== '');
   if (!list.length) { toast(t('nothingToExport')); return; }
   const enc = new TextEncoder();
-  const fileNames = dedupeFileNames(list.map((x) => exportFileName(x.tab.name, x.tab.mode === 'md')));
+  const fileNames = dedupeFileNames(list.map((x) => fileName(x.tab)), settings.plainNames);
   const now = new Date();
   const zip = makeZip(list.map((x, i) => ({ name: fileNames[i], data: enc.encode(x.text) })), now);
   download(zip, `modest-text_${zipStamp(now)}.zip`);

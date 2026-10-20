@@ -220,6 +220,14 @@ window.addEventListener('storage', (e) => {
   if (e.newValue == null) store.sizes.delete(k); else store.sizes.set(k, k.length + e.newValue.length);
   if (k === K.msg) { onMessage(e.newValue); return; }
   if (k === K.lock) { onLeaseChange(e.newValue); return; }
+  // Settings reach every window, the editing one too: a read-only window may change them (persist.js).
+  if (k === K.settings) {
+    loadSettings();
+    applyTheme();
+    applyFonts();
+    applyLang();
+    return;
+  }
   if (S.role === 'editor') {
     const late = Date.now() < lateSyncUntil && (k === K.index || k === K.closed || k.startsWith(TAB_PREFIX));
     if (late && !S.localEdit && !S.tabs.some((x) => x.dirty || x.failed)) {
@@ -227,12 +235,7 @@ window.addEventListener('storage', (e) => {
     }
     return;
   }
-  if (k === K.settings) {
-    loadSettings();
-    applyTheme();
-    applyFonts();
-    applyLang();
-  } else if (k === K.closed) {
+  if (k === K.closed) {
     loadClosed();
     updateToolbar();
   } else if (k === K.index || k.startsWith(TAB_PREFIX)) {

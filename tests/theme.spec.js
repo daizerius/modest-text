@@ -138,14 +138,14 @@ test('16. in both themes the active tab is obvious and all text passes WCAG AA (
 
 test('layout by scope: app & workspace in the top bar, tab tools in the tab strip, current-tab bar under the tabs; line icons in the text colour', async ({ page, appURL }) => {
   await openFresh(page, appURL);
-  // Top bar, right: Import, Export, Export All | theme, EN|FR | Help — groups split by hairlines, 4px inside groups.
+  // Top bar, right: Import, Export, Export All | theme, EN|FR | Settings, Help — groups split by hairlines, 4px inside groups.
   const right = await page.evaluate(() => [...document.querySelectorAll('.bar-right > *:not(input)')].map((e) => e.id || e.className));
-  expect(right).toEqual(['btn-import', 'btn-export', 'btn-export-all', 'bar-sep', 'btn-theme', 'btn-lang', 'bar-sep', 'btn-help']);
+  expect(right).toEqual(['btn-import', 'btn-export', 'btn-export-all', 'bar-sep', 'btn-theme', 'btn-lang', 'bar-sep', 'btn-prefs', 'btn-help']);
   const gaps = await page.evaluate(() => {
     const r = [...document.querySelectorAll('.bar-right > *:not(input)')].map((b) => b.getBoundingClientRect());
     return r.slice(1).map((x, i) => Math.round(x.left - r[i].right));
   });
-  expect(gaps).toEqual([4, 4, 8, 8, 4, 8, 8]); // 4px within a group; separator with 4px margins (+ 4px gap) each side
+  expect(gaps).toEqual([4, 4, 8, 8, 4, 8, 8, 4]); // 4px within a group; separator with 4px margins (+ 4px gap) each side
   const sepStyle = await page.locator('.bar-sep').first().evaluate((e) => [e.getBoundingClientRect().width, getComputedStyle(e).backgroundColor]);
   expect(sepStyle[0]).toBe(1);
   expect(sepStyle[1]).toBe(await page.locator('.fmt-group').nth(1).evaluate((e) => getComputedStyle(e, '::before').backgroundColor)); // same hairline in both bars
@@ -176,7 +176,7 @@ test('layout by scope: app & workspace in the top bar, tab tools in the tab stri
           fill: getComputedStyle(svg).fill, stroke, ratio: (a + 0.05) / (b + 0.05) };
       });
     });
-    expect(icons.map((i) => i.name)).toEqual(['wrap', 'readwidth', 'import', 'export', 'export-all', theme === 'dark' ? 'light' : 'dark', 'help', 'reopen', 'plain', 'markdown']);
+    expect(icons.map((i) => i.name)).toEqual(['wrap', 'readwidth', 'import', 'export', 'export-all', theme === 'dark' ? 'light' : 'dark', 'prefs', 'help', 'reopen', 'plain', 'markdown']);
     for (const i of icons) {
       expect(i.size, i.name).toEqual([20, 20]);
       expect(Math.abs(i.dx), i.name).toBeLessThanOrEqual(1);

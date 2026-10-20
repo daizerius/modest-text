@@ -3,7 +3,7 @@
 // Built with DOM calls only (text as text nodes, never HTML).
 import { helpParser } from './markdown.js';
 import { helpText } from './i18n.js';
-import { $, KEYS, S, activeTab, settings, t } from './state.js';
+import { $, KEYS, S, activeTab, t } from './state.js';
 
 export const helpView = $('help-view');
 
@@ -24,7 +24,7 @@ const INLINE = new Set(['ATXHeading1', 'ATXHeading2', 'ATXHeading3', 'Paragraph'
 // Accessible names of the icons (the button faces are named by their formatting button's label).
 const UI_NAMES = { import: 'import', export: 'export', 'export-all': 'exportAll', light: 'themeToLight', dark: 'themeToDark', help: 'help',
   reopen: 'undoClose', new: 'newTab', undo: 'hist_undo', redo: 'hist_redo', plain: 'uiPlain', markdown: 'uiMd', lang: 'uiLang',
-  wrap: 'uiWrap', readwidth: 'uiRead' };
+  wrap: 'uiWrap', readwidth: 'uiRead', prefs: 'prefsTip' };
 const el = (tag, cls) => { const e = document.createElement(tag); if (cls) e.className = cls; return e; };
 
 // {ui:name}: a copy of the interface's own icon (svg.icon[data-icon]) or button face (.fmt-btn[data-fmt], + and EN|FR).
@@ -45,48 +45,9 @@ function ui(name) {
   return box;
 }
 
-// {action:name}: a button that runs a command (data-action; its module listens for the click).
-function action(name) {
-  const b = el('button', 'btn help-action');
-  b.type = 'button';
-  b.dataset.action = name;
-  b.textContent = t(name + 'Btn');
-  b.title = b.textContent;
-  b.setAttribute('aria-label', b.textContent);
-  return b;
-}
-
-// {toggle:name}: an Off|On switch for settings[name], both words shown, the current one filled (toolbar.js
-// listens for the click: on a word, that value; from the keyboard, the other one).
-function toggle(name) {
-  const b = el('button', 'help-toggle');
-  b.type = 'button';
-  b.dataset.toggle = name;
-  b.setAttribute('role', 'switch');
-  b.setAttribute('aria-label', t(name + 'Toggle'));
-  b.title = t(name + 'Toggle');
-  for (const v of ['off', 'on']) {
-    const half = el('span', 'help-toggle-half');
-    half.dataset.value = v;
-    b.append(half);
-  }
-  updateToggle(b);
-  return b;
-}
-function updateToggle(b) {
-  const on = settings[b.dataset.toggle];
-  for (const half of b.children) {
-    half.textContent = t(half.dataset.value === 'on' ? 'toggleOn' : 'toggleOff');
-    half.classList.toggle('active', (half.dataset.value === 'on') === on);
-  }
-  b.setAttribute('aria-checked', String(on));
-  b.disabled = b.dataset.toggle === 'mail' && !settings.links; // e-mail links need links on
-}
-export const updateToggles = () => { for (const b of helpView.querySelectorAll('[data-toggle]')) updateToggle(b); };
-
-const MAKE = { ui, action, toggle };
+const MAKE = { ui };
 function text(parent, s) {
-  const parts = s.replace(/\s*\n\s*/g, ' ').split(/\{(ui|action|toggle):([\w-]+)\}/);
+  const parts = s.replace(/\s*\n\s*/g, ' ').split(/\{(ui):([\w-]+)\}/);
   for (let i = 0; i < parts.length; i += 3) {
     if (parts[i]) parent.append(parts[i]);
     if (i + 2 < parts.length) parent.append(MAKE[parts[i + 1]](parts[i + 2]));

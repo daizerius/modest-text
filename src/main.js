@@ -14,6 +14,7 @@ import { applyFonts, applyLang, applyTheme, fadeTheme, fitTopbar, mql, renderAll
 import { startLocking } from './windows.js';
 import { openFind, findGo, findOpen } from './find.js';
 import { toggleKeySheet } from './keysheet.js';
+import { togglePrefs } from './prefs.js';
 import { charKey, physKey, loadLayout } from './keys.js';
 import { focusText, showHelpView } from './helpview.js';
 // Every module registers its own event listeners: load them all.
@@ -29,6 +30,7 @@ import './windows.js';
 import './find.js';
 import './keysheet.js';
 import './erase.js';
+import './prefs.js';
 
 let storageOk = true;
 
@@ -133,6 +135,14 @@ window.addEventListener('keydown', (e) => {
   if (!isMac && e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey && (k === 'pageup' || k === 'pagedown')) {
     e.preventDefault();
     if (!document.querySelector('dialog[open]')) cycleTab(k === 'pageup' ? -1 : 1);
+    return;
+  }
+  // The settings: Option+Cmd+, on a Mac, not Cmd+, (Safari keeps that one for its own settings, so it would work in
+  // some browsers only); Alt+, elsewhere, where Ctrl+, is the previous tab. By the key's position, as the tab keys.
+  // Not over another dialog.
+  if (p === ',' && !e.shiftKey && e.altKey && !e.ctrlKey && (isMac ? e.metaKey : !e.metaKey)) {
+    e.preventDefault();
+    if (modal.hidden && ![...document.querySelectorAll('dialog[open]')].some((d) => d.id !== 'prefs-dialog')) togglePrefs();
     return;
   }
   // Cmd/Ctrl+/: the shortcut sheet, on the key right of the two above.

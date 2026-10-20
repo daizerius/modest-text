@@ -70,7 +70,7 @@ export function closeTab(id) {
   if (tab === activeTab()) tab.state = S.view.state;
   const content = textOf(tab);
   if (!tab.help && content !== '') {
-    S.closedStack.push({ name: tab.name, mode: tab.mode, content, pos: idx, state: tab.state, auto: tab.auto, def: tab.defaultName });
+    S.closedStack.push({ name: tab.name, mode: tab.mode, content, pos: idx, state: tab.state, auto: tab.auto, def: tab.defaultName, created: tab.created });
     if (S.closedStack.length > 3) S.closedStack.shift();
   }
   S.tabs.splice(idx, 1);
@@ -97,7 +97,7 @@ export function reopenClosed() {
   if (S.role !== 'editor' || !S.closedStack.length) return;
   const e = S.closedStack.pop();
   const state = e.state && e.state.doc.toString() === e.content ? e.state : null;
-  const tab = makeTab({ name: uniqueName(e.name, names()), mode: e.mode, content: e.content, state, auto: e.auto === true });
+  const tab = makeTab({ name: uniqueName(e.name, names()), mode: e.mode, content: e.content, state, auto: e.auto === true, created: e.created });
   if (e.def) tab.defaultName = e.def;
   S.tabs.splice(Math.min(Math.max(0, e.pos), S.tabs.length), 0, tab);
   tab.dirty = true;

@@ -1,5 +1,5 @@
 // Done when #6 (rename cleaning) plus the other tab behaviours of the spec.
-import { test, expect, openFresh, addTab, rename, clickTab, docText, setDoc, setCursor, tabNames, tabByName, closeTabByName, stored, dblclickTab, openHelp } from './helpers.js';
+import { test, expect, openFresh, addTab, rename, clickTab, docText, setDoc, setCursor, tabNames, tabByName, closeTabByName, stored, dblclickTab, openHelp, activeName, saveNow } from './helpers.js';
 
 const openRenameModal = (page, name) => dblclickTab(page, name);
 
@@ -278,3 +278,28 @@ for (const [platform, mac] of [['MacIntel', true], ['Win32', false]]) {
     expect(await docText(page)).toContain('`F2` or `R` renames it');
   });
 }
+
+// The tab still takes its name from its heading after a reload, and after being closed and reopened across one:
+// the record kept the flag, but loading it dropped it.
+test('a tab named after its heading keeps following it after a reload, and after reopening', async ({ page, appURL }) => {
+  await openFresh(page, appURL);
+  await setDoc(page, '# First');
+  await expect.poll(() => activeName(page)).toBe('First');
+  await saveNow(page);
+  await page.reload();
+  await expect(page.locator('html[data-ready="1"]')).toHaveCount(1);
+  await setDoc(page, '# Second');
+  await expect.poll(() => activeName(page)).toBe('Second');
+  await page.click('#btn-new');
+  await closeTabByName(page, 'Second');
+  await saveNow(page);
+  await page.reload();
+  await expect(page.locator('html[data-ready="1"]')).toHaveCount(1);
+  await page.click('#btn-undo-close');
+  await expect.poll(() => activeName(page)).toBe('Second');
+  await setDoc(page, '# Third');
+  await expect.poll(() => activeName(page)).toBe('Third');
+  await setDoc(page, 'no heading');
+  // Back to the name it was given, made unique: the tab opened above is "Untitled 1" now.
+  await expect.poll(() => activeName(page)).toBe('Untitled 1 (2)');
+});

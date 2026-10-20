@@ -186,3 +186,47 @@ test('8d. files dropped onto the window are imported', async ({ page, appURL }) 
   await clickTab(page, 'Untitled 1');
   expect(await docText(page)).toBe('');
 });
+
+// #16: plain export names, an option in the settings. Only the file is named so; the tab keeps its name.
+test('7c. plain export names: Export and Export All, with the option off and on', async ({ page, appURL }) => {
+  await openFresh(page, appURL);
+  await setDoc(page, 'one');
+  await rename(page, 'Untitled 1', 'Notes de réunion 2');
+  await addTab(page, 'Résumé', 'two', { md: true });
+  await addTab(page, 'Resume.md', 'three', { md: true });
+  await addTab(page, '日本', 'four');
+  await clickTab(page, 'Notes de réunion 2');
+  expect((await download(page, () => page.click('#btn-export'))).name).toBe('Notes de réunion 2.txt');
+  await page.click('#btn-prefs');
+  await page.click('#prefs-dialog [data-toggle="plainNames"] [data-value="on"]');
+  await page.click('#prefs-ok');
+  expect((await download(page, () => page.click('#btn-export'))).name).toBe('notes-de-reunion-2.txt');
+  expect(await tabNames(page)).toEqual(['Notes de réunion 2', 'Résumé', 'Resume.md', '日本']);
+  // A name with nothing left is named after the tab's creation time, as the ZIP's stamp writes it.
+  const id = (await stored(page))['modest-text:v1:index'].order[3];
+  const stamp = await page.evaluate((key) => {
+    const d = new Date(JSON.parse(localStorage.getItem(key)).created);
+    const p = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
+  }, 'modest-text:v1:tab:' + id);
+  const dl = await download(page, () => page.click('#btn-export-all'));
+  const files = execFileSync('unzip', ['-Z1', dl.path], { encoding: 'utf8' }).trim().split('\n').sort();
+  expect(files).toEqual(['notes-de-reunion-2.txt', 'resume.md', 'resume-2.md', `note-${stamp}.txt`].sort());
+});
+
+// A tab saved before tabs recorded their creation time: the time is read from its id.
+test('7d. plain export names: a tab saved without a creation time is named after the time in its id', async ({ page, appURL }) => {
+  await openFresh(page, appURL);
+  const when = new Date(2025, 0, 2, 3, 4, 5).getTime();
+  await page.evaluate((when) => {
+    const id = when.toString(36) + 'abcdef';
+    localStorage.setItem('modest-text:v1:tab:' + id, JSON.stringify({ rev: 1, name: 'Ελληνικά', mode: 'plain', saved: Date.now(), content: 'old' }));
+    const idx = JSON.parse(localStorage.getItem('modest-text:v1:index'));
+    localStorage.setItem('modest-text:v1:index', JSON.stringify({ order: [...idx.order, id], active: id }));
+    localStorage.setItem('modest-text:v1:settings', JSON.stringify({ plainNames: true }));
+  }, when);
+  await page.reload();
+  await expect(page.locator('html[data-ready="1"]')).toHaveCount(1);
+  await clickTab(page, 'Ελληνικά');
+  expect((await download(page, () => page.click('#btn-export'))).name).toBe('note-20250102-030405.txt');
+});
