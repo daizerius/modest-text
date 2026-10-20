@@ -6,6 +6,8 @@ All notable changes to Modest Text are listed here, newest first. The format fol
 
 ## [Unreleased]
 
+## [1.1.0] — 2026-10-20
+
 ### Added
 
 - **Erase all local data**, at the end of Help's "Where are my notes?": after a warning, whose
@@ -185,4 +187,5 @@ nothing sent anywhere.
 - Chrome, Edge or Brave 103 or newer, Firefox 113 or newer, Safari 16.4 or newer, on macOS and
   Windows; opened from disk or from any web server.
 
+[1.1.0]: https://github.com/daizerius/modest-text/releases/tag/v1.1.0
 [1.0.0]: https://github.com/daizerius/modest-text/releases/tag/v1.0.0

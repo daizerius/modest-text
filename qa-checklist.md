@@ -81,7 +81,7 @@ Use a browser profile that has never opened the app, or clear its storage first.
       title **Modest Text** is plain text, not a button — clicking it does nothing.
 - [ ] 1.8 Closing Help and reloading does not bring it back. It is not in Export All either.
 
-- [ ] 1.9 Help ends with the version: `Modest Text 1.0.0`.
+- [ ] 1.9 Help ends with the version: `Modest Text 1.1.0`.
 - [ ] 1.10 **Firefox** asks once whether the page may store data persistently; allow it. Other browsers decide without asking.
 
 ---
