@@ -18,6 +18,8 @@ All notable changes to Modest Text are listed here, newest first. The format fol
 
 ### Changed
 
+- The file is 18% smaller, 197 KB instead of 240 KB. The stylesheet and the page's markup now travel compressed
+  with the code, and the compressed code is stored as basE91 text instead of base64.
 - Help no longer has the link switches and the Erase button: they are in the settings, and Help points there.
 
 ### Fixed

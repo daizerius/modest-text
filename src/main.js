@@ -1,4 +1,5 @@
 // Modest Text — application entry point: printing, global keys, startup.
+import './page.js'; // first: the stylesheet and the markup every other module looks up
 import { EditorView } from '@codemirror/view';
 import { undo, redo } from '@codemirror/commands';
 import { makeT, helpText } from './i18n.js';

@@ -1,6 +1,7 @@
 // Done when #1: loads from disk and from a local web server, no console errors, no network
 // requests beyond the page itself; CSP and single-file constraints.
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
+import { ALPHABET, decode } from '../base91.mjs';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
@@ -213,9 +214,16 @@ test.describe('1. loading', () => {
     });
   }
 
-  test('the Help page is built with DOM calls only (no HTML strings)', async () => {
-    const src = readFileSync(new URL('../src/helpview.js', import.meta.url), 'utf8');
-    expect(src).not.toMatch(/innerHTML|outerHTML|insertAdjacentHTML|DOMParser|createContextualFragment/);
+  // Only page.js puts a string into the page as HTML: the app's own markup, from index.html at build time.
+  // Everything else, Help included, is built with DOM calls, so no text a user typed can ever become markup. The
+  // one DOMParser, in editor.js, reads pasted HTML for its text, in a document that is never shown.
+  test('the Help page and every other module are built with DOM calls only (no HTML strings), except the page markup', async () => {
+    const dir = new URL('../src/', import.meta.url);
+    for (const f of readdirSync(dir).filter((x) => x.endsWith('.js') && x !== 'page.js')) {
+      const code = readFileSync(new URL(f, dir), 'utf8');
+      expect(code, f).not.toMatch(/innerHTML|outerHTML|insertAdjacentHTML|createContextualFragment/);
+      if (f !== 'editor.js') expect(code, f).not.toMatch(/DOMParser/);
+    }
   });
 
   test('Help is excluded from Export All', async ({ page, appURL }) => {
@@ -232,7 +240,7 @@ test.describe('1. loading', () => {
 // The bundle is stored compressed in a data block; a small inline loader unpacks it and runs it from a blob: URL
 // with an integrity attribute. The CSP allows exactly these two scripts, by hash.
 const scriptTags = () => [...HTML.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/g)];
-const bundle = () => inflateRawSync(Buffer.from(scriptTags().find((m) => /id="mt-code"/.test(m[1]))[2], 'base64')).toString('utf8');
+const bundle = () => inflateRawSync(decode(scriptTags().find((m) => /id="mt-code"/.test(m[1]))[2], ALPHABET)).toString('utf8');
 
 test.describe('single self-contained file', () => {
   test('CSP meta: default-src none, two hashed scripts only (the loader and the bundle), inline styles, data:/blob: images, base-uri/form-action none', async () => {
@@ -251,7 +259,8 @@ test.describe('single self-contained file', () => {
     // Two script elements: the data block (never run: not a script type) and the inline loader.
     const scripts = scriptTags();
     expect(scripts.map((x) => x[1].trim())).toEqual(['type="application/octet-stream" id="mt-code"', '']);
-    expect(scripts[0][2]).toMatch(/^[A-Za-z0-9+/=]+$/);
+    // basE91 text (base91.mjs): printable ASCII without "<", so the HTML parser leaves it as it is.
+    expect(scripts[0][2]).toMatch(/^[\x21-\x3b\x3d-\x7e]+$/);
     const sha = (text) => `sha256-${createHash('sha256').update(text, 'utf8').digest('base64')}`;
     const loaderHash = sha(scripts[1][2]), bundleHash = sha(bundle());
     expect(dirs['script-src']).toEqual([`'${loaderHash}'`, `'${bundleHash}'`]);

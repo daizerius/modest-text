@@ -587,5 +587,4 @@ html.tab-dragging, html.tab-dragging * { cursor: grabbing !important; }
 .keys-body td:first-child { width: 33%; }
 .keys-body kbd { display: inline-block; margin: 1px 0; white-space: nowrap; font: 13px ui-monospace, Menlo, Consolas, monospace; padding: 1px 5px; border: 1px solid var(--border); border-radius: 3px; background: var(--bg-input); color: var(--text-strong); }
 
-/* Shown by the loader when the browser cannot start the app (too old). */
-.mt-fail { margin: 12px 16px; padding: 10px 12px; border: 2px solid #BF616A; border-radius: 4px; font: 15px system-ui, sans-serif; }
+/* .mt-fail, the message shown when the app cannot start, is styled in boot.css: this stylesheet never loads then. */

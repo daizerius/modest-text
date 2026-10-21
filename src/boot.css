@@ -1,0 +1,6 @@
+/* The only styles in the HTML file itself: what shows until the bundle, which carries the stylesheet, has unpacked
+   and started (build.mjs). Dark, as the page opens dark (index.html), so a slow start never flashes white; and the
+   frame of the message shown when it cannot start. The stylesheet repeats the body's colours by variable. */
+html, body { margin: 0; }
+body { background: #2E3440; color: #E5E9F0; }
+.mt-fail { margin: 12px 16px; padding: 10px 12px; border: 2px solid #BF616A; border-radius: 4px; font: 15px system-ui, sans-serif; }

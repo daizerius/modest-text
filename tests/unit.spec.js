@@ -8,6 +8,7 @@ import {
   cleanText, cleanName, uniqueName, withSuffix, nextDefaultName, exportFileName, plainFileName, dedupeFileNames, countText, decodeBytes, prepareImport, formatStamp, zipStamp,
 } from '../src/text.js';
 import { makeZip, crc32 } from '../src/zip.js';
+import { ALPHABET, encode, decode } from '../base91.mjs';
 const PY = process.platform === 'win32' ? 'python' : 'python3'; // the Python 3 command
 
 const NBSP = String.fromCharCode(0xa0), ZWJ = String.fromCharCode(0x200d), BOM = String.fromCharCode(0xfeff);
@@ -153,4 +154,22 @@ test('zip writer: CRC-32, UTF-8 flag, readable by unzip and Python', () => {
       ['日本.txt', 0x800, [2026, 9, 12, 14, 3, 22], '語'],
     ]]);
   });
+});
+
+// The compressed bundle's text form (base91.mjs): what is encoded at build time decodes to the same bytes in the
+// page, for every length and content, and the text never holds what the HTML parser would change.
+test('basE91: round trip, printable ASCII only, no "<"', () => {
+  expect(ALPHABET).toHaveLength(91);
+  expect(new Set(ALPHABET).size).toBe(91);
+  expect(ALPHABET).not.toMatch(/[<\\'\s]/);
+  let seed = 1;
+  const rnd = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) >> 16) & 255;
+  for (const len of [0, 1, 2, 3, 13, 14, 255, 256, 1000, 65537]) {
+    for (const fill of ['random', 'zeros', 'ones']) {
+      const bytes = Uint8Array.from({ length: len }, () => (fill === 'random' ? rnd() : fill === 'zeros' ? 0 : 255));
+      const text = encode(bytes);
+      expect(text).toMatch(/^[\x21-\x3b\x3d-\x7e]*$/);
+      expect(Buffer.from(decode(text, ALPHABET)).equals(Buffer.from(bytes)), `${fill} ${len}`).toBe(true);
+    }
+  }
 });

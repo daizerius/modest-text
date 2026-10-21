@@ -311,8 +311,7 @@ test('bare addresses are links in Markdown tabs (Cmd/Ctrl+click opens them), and
   await page.click('#btn-prefs');
   await toggle('links').locator('[data-value="off"]').click();
   await expect(toggle('mail')).toBeDisabled();
-  await page.click('#prefs-ok');
-  await clickTab(page, name);
+  await page.click('#prefs-ok'); // the panel leaves the tab in view: clicking it again would be a double-click (rename)
   await setCursor(page, 0);
   await expect(page.locator('.mt-link')).toHaveText(['https://example.com/a?b=1', 'www.example.org', 'name@example.com', 'written']);
   for (const i of [0, 3]) await expect(page.locator('.mt-link').nth(i)).not.toHaveAttribute('title', /./);
